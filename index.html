@@ -3,79 +3,43 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Built Technologies — GTM Action Dashboard</title>
+<title>GTM Pipeline Health Dashboard</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f4f5f7; color: #1a1a2e; font-size: 14px; }
 
-  /* CONNECTION BAR */
-  .connect-bar {
-    background: #1a2744;
-    padding: 10px 40px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
+  .connect-bar { background: #1a2744; padding: 10px 40px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .connect-bar label { font-size: 12px; color: #8fa3c0; white-space: nowrap; }
-  .connect-bar input {
-    flex: 1; min-width: 280px; max-width: 420px;
-    padding: 6px 12px; border-radius: 6px;
-    border: 1px solid #2d3f5e; background: #0f1f3d;
-    color: white; font-size: 12px; font-family: monospace;
-  }
+  .connect-bar input { flex: 1; min-width: 280px; max-width: 420px; padding: 6px 12px; border-radius: 6px; border: 1px solid #2d3f5e; background: #0f1f3d; color: white; font-size: 12px; font-family: monospace; }
   .connect-bar input::placeholder { color: #4a6080; }
-  .connect-bar button {
-    padding: 6px 16px; border-radius: 6px; border: none;
-    background: #3b82f6; color: white; font-size: 12px;
-    font-weight: 600; cursor: pointer; white-space: nowrap;
-  }
+  .connect-bar button { padding: 6px 16px; border-radius: 6px; border: none; background: #3b82f6; color: white; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
   .connect-bar button:hover { background: #2563eb; }
   .connect-bar button.disconnect { background: #374151; }
-  .status-pill {
-    display: flex; align-items: center; gap: 6px;
-    padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;
-  }
-  .status-pill.sample { background: #fef3c7; color: #92400e; }
+  .status-pill { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+  .status-pill.idle { background: #f1f5f9; color: #64748b; }
   .status-pill.live { background: #d1fae5; color: #065f46; }
   .status-pill.loading { background: #e0f2fe; color: #0369a1; }
   .status-pill.error { background: #fee2e2; color: #991b1b; }
   .status-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
-  .cors-note { font-size: 11px; color: #64748b; }
-  .cors-note a { color: #3b82f6; }
 
-  /* HEADER */
   .header { background: #0f1f3d; color: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; }
   .header-left h1 { font-size: 20px; font-weight: 700; }
   .header-left p { font-size: 12px; color: #8fa3c0; margin-top: 4px; }
+  .header-right { text-align: right; }
   .header-right .date { font-size: 12px; color: #8fa3c0; }
-  .header-right .period { font-size: 13px; color: #c8d8ec; font-weight: 500; margin-top: 2px; text-align: right; }
+  .header-right .period { font-size: 13px; color: #c8d8ec; font-weight: 500; margin-top: 2px; }
 
-  /* DATA MODE BANNER */
-  .data-banner {
-    padding: 8px 40px;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .data-banner.sample-mode { background: #fffbeb; color: #78350f; border-bottom: 1px solid #fde68a; }
-  .data-banner.live-mode { background: #ecfdf5; color: #065f46; border-bottom: 1px solid #a7f3d0; }
-  .data-banner strong { font-weight: 700; }
-
-  /* SUMMARY STRIP */
-  .summary-strip { background: #162444; padding: 14px 40px; display: flex; gap: 28px; align-items: center; flex-wrap: wrap; }
+  .summary-strip { background: #162444; padding: 14px 40px; display: flex; gap: 28px; align-items: center; flex-wrap: wrap; min-height: 64px; }
   .stat-pill { display: flex; align-items: center; gap: 10px; }
   .stat-pill .num { font-size: 26px; font-weight: 700; line-height: 1; }
-  .stat-pill .label { font-size: 11px; color: #8fa3c0; line-height: 1.4; max-width: 90px; }
+  .stat-pill .label { font-size: 11px; color: #8fa3c0; line-height: 1.4; max-width: 100px; }
   .stat-pill.red .num { color: #ff6b6b; }
   .stat-pill.orange .num { color: #ffa94d; }
   .stat-pill.yellow .num { color: #ffe066; }
   .stat-pill.green .num { color: #69db7c; }
-  .stat-pill.blue .num { color: #74c0fc; }
   .divider-v { width: 1px; height: 36px; background: #2d3f5e; }
+  .summary-idle { color: #4a6080; font-size: 13px; }
 
-  /* MAIN */
   .main { padding: 28px 40px; max-width: 1400px; margin: 0 auto; }
 
   .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; margin-top: 32px; }
@@ -85,48 +49,47 @@
   .tier-2 { background: #ffa94d22; color: #ffa94d; border: 1px solid #ffa94d44; }
   .tier-3 { background: #ffe06622; color: #e6b800; border: 1px solid #ffe06644; }
   .tier-4 { background: #69db7c22; color: #40c057; border: 1px solid #69db7c44; }
-  .tier-5 { background: #74c0fc22; color: #339af0; border: 1px solid #74c0fc44; }
   .section-header h2 { font-size: 15px; font-weight: 600; }
-  .section-header .count { margin-left: auto; font-size: 11px; color: #8898aa; font-weight: 500; }
+  .section-header .count { margin-left: auto; font-size: 11px; color: #8898aa; }
 
-  /* CARDS */
-  .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; }
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+
   .card { background: white; border-radius: 10px; padding: 18px 20px; border: 1px solid #e8ecf0; position: relative; overflow: hidden; }
   .card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
   .card.urgent::before { background: #ff6b6b; }
   .card.warning::before { background: #ffa94d; }
   .card.caution::before { background: #ffe066; }
   .card.good::before { background: #69db7c; }
-  .card.info::before { background: #74c0fc; }
-
-  /* SAMPLE DATA BADGE */
-  .sample-badge {
-    display: inline-flex; align-items: center; gap: 4px;
-    padding: 2px 7px; border-radius: 8px;
-    font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
-    background: #fef3c7; color: #92400e; border: 1px solid #fde68a;
-    vertical-align: middle; margin-left: 4px;
-  }
-  .live-badge {
-    display: inline-flex; align-items: center; gap: 4px;
-    padding: 2px 7px; border-radius: 8px;
-    font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
-    background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0;
-    vertical-align: middle; margin-left: 4px;
-  }
 
   .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
   .company-name { font-size: 15px; font-weight: 700; color: #0f1f3d; line-height: 1.2; }
-  .portfolio { font-size: 11px; color: #5a6987; margin-top: 2px; font-weight: 500; }
+  .company-name a { color: inherit; text-decoration: none; }
+  .company-name a:hover { text-decoration: underline; }
+  .company-meta { font-size: 11px; color: #5a6987; margin-top: 3px; }
+
   .stage-badge { padding: 3px 9px; border-radius: 12px; font-size: 11px; font-weight: 600; white-space: nowrap; flex-shrink: 0; margin-left: 8px; }
+  .stage-lead { background: #f3f0ff; color: #6741d9; }
   .stage-mqa { background: #e7f5ff; color: #1971c2; }
   .stage-sao { background: #ebfbee; color: #2f9e44; }
-  .stage-prospect { background: #f8f9fa; color: #495057; border: 1px solid #dee2e6; }
   .stage-opportunity { background: #fff3bf; color: #e67700; }
-  .stage-lead { background: #f3f0ff; color: #6741d9; }
-  .stage-unknown { background: #f1f3f5; color: #868e96; border: 1px solid #dee2e6; }
+  .stage-customer { background: #d3f9d8; color: #2f9e44; }
+  .stage-unknown { background: #f1f3f5; color: #868e96; }
 
-  .meta-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 10px; }
+  .owner-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .owner-info { display: flex; align-items: center; gap: 8px; }
+  .owner-avatar { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: white; flex-shrink: 0; }
+  .av-none { background: #adb5bd; }
+  .owner-name { font-size: 12px; font-weight: 600; color: #495057; }
+  .owner-unassigned { font-size: 12px; font-weight: 600; color: #e03131; }
+
+  .issue-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+  .issue-missing { background: #ffe3e3; color: #c92a2a; }
+  .issue-stale { background: #fff3e0; color: #d9480f; }
+  .issue-gap { background: #fff3bf; color: #e67700; }
+  .issue-sla { background: #f3f0ff; color: #6741d9; }
+  .issue-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  .meta-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; }
   .meta-item { display: flex; flex-direction: column; gap: 1px; }
   .meta-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.4px; color: #aab2c0; font-weight: 600; }
   .meta-value { font-size: 12px; font-weight: 600; color: #2d3748; }
@@ -134,366 +97,103 @@
   .meta-value.orange { color: #d9480f; }
   .meta-value.green { color: #2f9e44; }
 
-  .signals-row { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
-  .signal-chip { padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; }
-  .signal-hit { background: #d3f9d8; color: #2f9e44; }
-  .signal-miss { background: #f1f3f5; color: #adb5bd; }
-
-  .routing-status { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; margin-bottom: 12px; }
-  .routing-ok { background: #d3f9d8; color: #2f9e44; }
-  .routing-gap { background: #fff3bf; color: #e67700; }
-  .routing-missing { background: #ffe3e3; color: #c92a2a; }
-  .routing-stale { background: #fff3e0; color: #d9480f; }
-  .routing-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-
-  .owner-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-  .owner-info { display: flex; align-items: center; gap: 8px; }
-  .owner-avatar { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: white; }
-  .av-a { background: #5c7cfa; }
-  .av-b { background: #f783ac; }
-  .av-c { background: #20c997; }
-  .av-d { background: #ff922b; }
-  .av-none { background: #adb5bd; }
-  .owner-name { font-size: 12px; font-weight: 600; color: #495057; }
-  .owner-unassigned { font-size: 12px; font-weight: 600; color: #e03131; }
-
-  .event-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
-  .event-tag { padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; background: #fff3bf; color: #e67700; }
-
   .action-box { background: #f8f9ff; border: 1px solid #e0e4f0; border-radius: 6px; padding: 10px 12px; }
   .action-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #7c8db5; margin-bottom: 4px; }
   .action-text { font-size: 12px; color: #2d3748; line-height: 1.5; }
 
-  /* NET NEW TABLE */
-  .net-new-table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; border: 1px solid #e8ecf0; }
-  .net-new-table th { background: #f8f9fa; padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: #8898aa; border-bottom: 1px solid #e8ecf0; }
-  .net-new-table td { padding: 11px 14px; font-size: 13px; border-bottom: 1px solid #f1f3f5; color: #2d3748; }
-  .net-new-table tr:last-child td { border-bottom: none; }
-  .net-new-table tr:hover td { background: #f8f9ff; }
-  .persona-badge { padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; }
-  .persona-eb { background: #ffe3e3; color: #c92a2a; }
-  .persona-ch { background: #e7f5ff; color: #1971c2; }
+  .empty-state { text-align: center; padding: 32px; color: #8898aa; font-size: 13px; background: white; border-radius: 10px; border: 1px solid #e8ecf0; }
+  .empty-state .check { font-size: 24px; margin-bottom: 8px; }
 
-  /* LOADING SPINNER */
-  .loading-overlay { text-align: center; padding: 60px 40px; color: #8898aa; }
+  .idle-state { text-align: center; padding: 80px 40px; color: #8898aa; }
+  .idle-state h2 { font-size: 18px; font-weight: 600; color: #4a6080; margin-bottom: 8px; }
+  .idle-state p { font-size: 13px; }
+
+  .loading-overlay { text-align: center; padding: 80px 40px; }
   .spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid #e2e8f0; border-top-color: #3b82f6; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px; }
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* HS RECORD CARD (live mode) */
-  .hs-record-note { font-size: 11px; color: #8898aa; padding: 8px 12px; background: #f8f9fa; border-radius: 6px; margin-top: 10px; line-height: 1.5; }
 
   .footer { text-align: center; padding: 24px 40px; color: #aab2c0; font-size: 11px; border-top: 1px solid #e8ecf0; margin-top: 40px; }
 
   @media (max-width: 700px) {
-    .header, .summary-strip, .main, .connect-bar, .data-banner { padding-left: 16px; padding-right: 16px; }
+    .header, .summary-strip, .main, .connect-bar { padding-left: 16px; padding-right: 16px; }
     .cards-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
 <body>
 
-<!-- CONNECTION BAR -->
 <div class="connect-bar">
   <label>HubSpot Private App Token</label>
   <input type="password" id="hs-token" placeholder="pat-na1-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
   <button id="connect-btn" onclick="connectHubSpot()">Connect</button>
-  <div id="status-pill" class="status-pill sample">
-    <span class="status-dot"></span> Sample Data Mode
-  </div>
-  <span class="cors-note">Must be hosted (not file://) for live API calls &mdash; try <code>python -m http.server</code> locally.</span>
+  <div id="status-pill" class="status-pill idle"><span class="status-dot"></span> Not connected</div>
 </div>
 
-<!-- HEADER -->
 <div class="header">
   <div class="header-left">
-    <h1>Built Technologies — GTM Action Dashboard</h1>
-    <p>Built Lender GTM &nbsp;·&nbsp; Account owners and leadership</p>
+    <h1>GTM Pipeline Health Dashboard</h1>
+    <p>Four live HubSpot queries &nbsp;·&nbsp; Missing owners, stale MQAs, wrong stage, SLA breaches</p>
   </div>
   <div class="header-right">
-    <div class="date" id="dash-date">Week of April 3, 2026</div>
-    <div class="period">Q2 FY27 &nbsp;·&nbsp; ABA Risk Post-Event</div>
+    <div class="date" id="dash-date"></div>
+    <div class="period" id="dash-account"></div>
   </div>
 </div>
 
-<!-- DATA BANNER -->
-<div class="data-banner sample-mode" id="data-banner">
-  <strong>Sample Data Mode</strong> &mdash;
-  Standard HubSpot fields (lifecycle stage, owner, deal stage) will update with real values when connected.
-  Fields marked <span class="sample-badge">sample</span> require custom properties to be created in HubSpot.
-</div>
-
-<!-- SUMMARY STRIP -->
 <div class="summary-strip" id="summary-strip">
-  <!-- populated by JS -->
+  <span class="summary-idle">Connect a HubSpot account to see live counts</span>
 </div>
 
-<!-- MAIN -->
 <div class="main" id="dashboard-main">
-  <div class="loading-overlay" style="display:none" id="loading">
+  <div id="loading" class="loading-overlay" style="display:none">
     <div class="spinner"></div>
-    <div>Fetching HubSpot data…</div>
+    <div>Running queries against HubSpot…</div>
   </div>
-  <div id="dashboard-content"></div>
+  <div id="dashboard-content">
+    <div class="idle-state">
+      <h2>Connect your HubSpot account</h2>
+      <p>Paste a Private App Token above and click Connect to surface pipeline issues in real time.</p>
+    </div>
+  </div>
 </div>
 
-<div class="footer">
-  Built Technologies &nbsp;·&nbsp; GTM Action Dashboard &nbsp;·&nbsp; Q2 FY27 &nbsp;·&nbsp;
-  Standard fields: HubSpot API &nbsp;·&nbsp; Custom fields: <span class="sample-badge">sample</span> until custom properties are created
-</div>
+<div class="footer">GTM Pipeline Health Dashboard &nbsp;·&nbsp; Powered by HubSpot API &nbsp;·&nbsp; All data live</div>
 
 <script>
-// ─────────────────────────────────────────────
-// SAMPLE DATA — Built mock dataset
-// Fields marked isSample:true require custom HubSpot properties
-// ─────────────────────────────────────────────
-const SAMPLE_DATA = {
-  tier1: [
-    {
-      id: 'sample-1',
-      name: 'Texas Capital Bancshares',
-      // Standard HubSpot fields
-      lifecyclestage: 'lead',
-      ownername: null,
-      state: 'TX',
-      industry: 'Banking',
-      // Custom / sample fields
-      institution_type: 'Regional Bank',         // isSample
-      loan_portfolio_m: 6800,                    // isSample
-      routing_status: 'Missing Owner',           // isSample
-      signal_count: 2,                           // isSample
-      signals: { email: false, badge_cref: true, badge_aba: true, webinar: false, demo: false, form: true },
-      days_since_signal: 12,                     // isSample
-      clay_enriched: true,                       // isSample
-      source: 'Event + Clay',                    // isSample
-      event_contacts: ['James Hoffmann (EVP) — ABA Risk', 'Michael Torres (Director) — ABA Risk'],
-      action: 'Assign owner immediately. Two named contacts from ABA Risk. Enroll in persona-specific sequences today using badge scan as trigger.',
-      urgency: 'urgent', tier: 1
-    },
-    {
-      id: 'sample-2',
-      name: 'Western Alliance Bancorporation',
-      lifecyclestage: 'marketingqualifiedlead',
-      ownername: 'Dana Kim',
-      state: 'AZ',
-      industry: 'Banking',
-      institution_type: 'Regional Bank',
-      loan_portfolio_m: 12500,
-      routing_status: 'Routing Gap',
-      signal_count: 2,
-      signals: { email: true, badge_cref: true, badge_aba: true, webinar: false, demo: false, form: false },
-      days_since_signal: 11,
-      clay_enriched: true,
-      source: 'Event + Outbound',
-      event_contacts: ['Patricia Torres (EVP Specialty Finance) — ABA Risk, email confirmed'],
-      action: 'Largest account in pipeline. Demo invite workflow never fired — trigger manually. Dana Kim to reach Patricia Torres today.',
-      urgency: 'urgent', tier: 1
-    }
-  ],
-  tier2: [
-    {
-      id: 'sample-3',
-      name: 'HomeStreet Bank',
-      lifecyclestage: 'marketingqualifiedlead',
-      ownername: 'Sarah Tran',
-      state: 'WA', industry: 'Banking',
-      institution_type: 'Regional Bank', loan_portfolio_m: 2000,
-      routing_status: 'Stale — No Follow-up', signal_count: 3,
-      signals: { email: true, badge_cref: true, badge_aba: true, webinar: true, demo: false, form: false },
-      days_since_signal: 10, clay_enriched: true, source: 'Multi-touch',
-      event_contacts: ['Tom Reilly (VP CRE) — ABA Risk', 'Greg Watkins (SVP) — ABA Risk'],
-      action: '3 signals, 10 days with no follow-up sequence. Multi-thread Reilly (Champion) + Watkins (Economic Buyer) using ABA Risk hook.',
-      urgency: 'warning', tier: 2
-    },
-    {
-      id: 'sample-4',
-      name: 'Glacier Bancorp',
-      lifecyclestage: 'marketingqualifiedlead',
-      ownername: 'Dana Kim',
-      state: 'MT', industry: 'Banking',
-      institution_type: 'Regional Bank', loan_portfolio_m: 2700,
-      routing_status: 'Stale — No Follow-up', signal_count: 2,
-      signals: { email: false, badge_cref: true, badge_aba: true, webinar: true, demo: false, form: false },
-      days_since_signal: 13, clay_enriched: true, source: 'Event + Email',
-      event_contacts: ['Monica Shah (SVP Construction Lending) — ABA Risk', 'J. Patel (AVP) — ABA Risk'],
-      action: 'Monica Shah is a direct Champion match. LinkedIn outreach referencing ABA Risk. Start demo invite sequence.',
-      urgency: 'warning', tier: 2
-    },
-    {
-      id: 'sample-5',
-      name: 'Renasant Corporation',
-      lifecyclestage: 'marketingqualifiedlead',
-      ownername: null,
-      state: 'MS', industry: 'Banking',
-      institution_type: 'Community Bank', loan_portfolio_m: 680,
-      routing_status: 'Missing Owner', signal_count: 2,
-      signals: { email: false, badge_cref: true, badge_aba: false, webinar: false, demo: false, form: true },
-      days_since_signal: 13, clay_enriched: false, source: 'Event',
-      event_contacts: [],
-      action: 'MQA with no owner — assign immediately. Badge scan + form fill = clear intent. Enroll in sequence.',
-      urgency: 'warning', tier: 2
-    },
-    {
-      id: 'sample-6',
-      name: 'Heartland Financial USA',
-      lifecyclestage: 'marketingqualifiedlead',
-      ownername: 'Sarah Tran',
-      state: 'IA', industry: 'Banking',
-      institution_type: 'Regional Bank', loan_portfolio_m: 5600,
-      routing_status: 'Correctly Routed', signal_count: 2,
-      signals: { email: true, badge_cref: false, badge_aba: false, webinar: true, demo: false, form: false },
-      days_since_signal: 2, clay_enriched: true, source: 'Outbound + Webinar',
-      event_contacts: [],
-      action: 'Fresh MQA — correctly routed. Demo invite not yet sent. Send today before momentum fades. $5.6B portfolio.',
-      urgency: 'warning', tier: 2
-    },
-    {
-      id: 'sample-7',
-      name: 'Pinnacle Financial Partners',
-      lifecyclestage: 'marketingqualifiedlead',
-      ownername: 'Marcus Webb',
-      state: 'TN', industry: 'Banking',
-      institution_type: 'Regional Bank', loan_portfolio_m: 4200,
-      routing_status: 'Correctly Routed', signal_count: 2,
-      signals: { email: true, badge_cref: true, badge_aba: true, webinar: false, demo: false, form: false },
-      days_since_signal: 11, clay_enriched: true, source: 'Event + Clay',
-      event_contacts: ['Rachel Okafor (SVP Lending) — ABA Risk, email confirmed'],
-      action: 'Rachel Okafor has confirmed email. Marcus Webb to send personal note referencing ABA Risk today.',
-      urgency: 'warning', tier: 2
-    }
-  ],
-  tier3: [
-    {
-      id: 'sample-8',
-      name: 'Veritex Community Bank',
-      lifecyclestage: 'lead',
-      ownername: 'Marcus Webb',
-      state: 'TX', industry: 'Banking',
-      institution_type: 'Community Bank', loan_portfolio_m: 1800,
-      routing_status: 'Routing Gap', signal_count: 2,
-      signals: { email: true, badge_cref: false, badge_aba: true, webinar: false, demo: false, form: false },
-      days_since_signal: 30, clay_enriched: true, source: 'Outbound',
-      event_contacts: ['Robert Nunez (Managing Director) — ABA Risk = 2nd signal'],
-      action: 'Email reply 30 days ago never triggered MQA. Robert Nunez at ABA Risk = second signal. Promote to MQA manually. ABA Risk is the hook.',
-      urgency: 'caution', tier: 3
-    },
-    {
-      id: 'sample-9',
-      name: 'Lakeland Bancorp',
-      lifecyclestage: 'lead',
-      ownername: 'Dana Kim',
-      state: 'NJ', industry: 'Banking',
-      institution_type: 'Community Bank', loan_portfolio_m: 750,
-      routing_status: 'Routing Gap', signal_count: 2,
-      signals: { email: true, badge_cref: false, badge_aba: false, webinar: true, demo: false, form: false },
-      days_since_signal: 18, clay_enriched: true, source: 'Outbound + Email',
-      event_contacts: [],
-      action: '2 signals, 18 days — qualified as MQA but stage never updated. Promote manually and enroll in sequence this week.',
-      urgency: 'caution', tier: 3
-    },
-    {
-      id: 'sample-10',
-      name: 'Esquire Financial Holdings',
-      lifecyclestage: 'lead',
-      ownername: 'Marcus Webb',
-      state: 'NY', industry: 'Banking',
-      institution_type: 'Specialty Lender', loan_portfolio_m: 580,
-      routing_status: 'Routing Gap', signal_count: 2,
-      signals: { email: true, badge_cref: false, badge_aba: false, webinar: false, demo: false, form: true },
-      days_since_signal: 14, clay_enriched: false, source: 'Outbound',
-      event_contacts: [],
-      action: 'HubSpot workflow didn\'t fire despite 2 qualifying signals. Promote to MQA manually. Marcus Webb to enroll in sequence.',
-      urgency: 'caution', tier: 3
-    }
-  ],
-  tier4: [
-    {
-      id: 'sample-11',
-      name: 'Triumph Financial',
-      lifecyclestage: 'salesqualifiedlead',
-      ownername: 'Marcus Webb',
-      state: 'TX', industry: 'Banking',
-      institution_type: 'Specialty Lender', loan_portfolio_m: 2200,
-      routing_status: 'Correctly Routed', signal_count: 4,
-      signals: { email: true, badge_cref: true, badge_aba: false, webinar: true, demo: true, form: false },
-      days_since_signal: 4, days_in_stage: 4, close_target: 'Q2 FY27',
-      clay_enriched: true, source: 'Multi-touch',
-      event_contacts: [],
-      action: 'All 4 signals hit — highest intent account. Fast-track to Opportunity. Confirm next steps and timeline this week.',
-      urgency: 'good', tier: 4
-    },
-    {
-      id: 'sample-12',
-      name: 'QCR Holdings',
-      lifecyclestage: 'opportunity',
-      ownername: 'Marcus Webb',
-      state: 'IA', industry: 'Banking',
-      institution_type: 'Regional Bank', loan_portfolio_m: 2600,
-      routing_status: 'Correctly Routed', signal_count: 3,
-      signals: { email: true, badge_cref: true, badge_aba: false, webinar: false, demo: true, form: false },
-      days_since_signal: 7, days_in_stage: 21, close_target: 'Q2 FY27',
-      clay_enriched: true, source: 'Multi-touch',
-      event_contacts: [],
-      action: '21 days in Opportunity — Q2 close at risk. Confirm timeline, decision maker, and blocker this week.',
-      urgency: 'good', tier: 4
-    },
-    {
-      id: 'sample-13',
-      name: 'NBT Bancorp',
-      lifecyclestage: 'opportunity',
-      ownername: 'Dana Kim',
-      state: 'NY', industry: 'Banking',
-      institution_type: 'Regional Bank', loan_portfolio_m: 1700,
-      routing_status: 'Correctly Routed', signal_count: 4,
-      signals: { email: true, badge_cref: true, badge_aba: false, webinar: true, demo: true, form: false },
-      days_since_signal: 9, days_in_stage: 14, close_target: 'Q2 FY27',
-      clay_enriched: true, source: 'Multi-touch',
-      event_contacts: [],
-      action: 'All signals hit. Dana Kim to confirm close timeline and identify remaining stakeholders.',
-      urgency: 'good', tier: 4
-    }
-  ],
-  tier5: [
-    { name: 'Charles Abernathy', company: 'Blue Ridge Financial Group', title: 'President & CEO', persona: 'Economic Buyer', email: 'Missing — enrich', email_ok: false, action: 'Highest seniority from event. Find email via Clay, assign to rep, sequence today.' },
-    { name: 'Hassan Al-Rashid', company: 'Midwest Bank Holdings', title: 'Chief Commercial Officer', persona: 'Economic Buyer', email: 'h.alrashid@midwestbank.com', email_ok: true, action: 'C-suite, email confirmed. ICP-qualify and enroll in Economic Buyer sequence.' },
-    { name: 'Stephanie Vance', company: 'Valley National Bancorp', title: 'SVP, Construction Finance', persona: 'Champion', email: 'svance@valleynationalbank.com', email_ok: true, action: 'Direct ICP title match. Email confirmed. LinkedIn + email outreach — draw management angle.' },
-    { name: 'Linda Park', company: 'First Midwest Bancorp', title: 'EVP Lending', persona: 'Economic Buyer', email: 'lpark@firstmidwest.com', email_ok: true, action: 'Email confirmed. Qualify institution size and construction focus before sequencing.' },
-    { name: 'Andrew Castellano', company: 'South State Bank', title: 'Director, Construction Lending', persona: 'Champion', email: 'Missing — enrich', email_ok: false, action: 'Core Champion persona. Find email via Clay. LinkedIn outreach as fallback.' },
-    { name: 'Jeff Morales', company: 'Centerstate Bank', title: 'SVP Construction Lending', persona: 'Champion', email: 'Missing — enrich', email_ok: false, action: 'Direct construction lending title. Find email via Clay, enroll in Champion sequence.' }
-  ]
-}
-
-// ─────────────────────────────────────────────
-// HUBSPOT API
-// ─────────────────────────────────────────────
-const COMPANY_PROPS = ['name','lifecyclestage','ownername','hubspot_owner_id','state','industry','annualrevenue','hs_lead_status','hs_latest_intent_signal_timestamp','hs_count_intent_signals_created_last_30_days','hubspot_owner_assigneddate']
-const DEAL_PROPS = ['dealname','dealstage','pipeline','hubspot_owner_id','closedate','amount','hs_v2_time_in_current_stage','hs_v2_date_entered_current_stage','hs_priority']
+const PROPS = [
+  'name','lifecyclestage','ownername','hubspot_owner_id','state','industry',
+  'annualrevenue','hs_lead_status','hs_latest_intent_signal_timestamp',
+  'hs_count_intent_signals_created_last_30_days','hubspot_owner_assigneddate',
+  'createdate','hs_lastmodifieddate','num_conversion_events','domain'
+]
 
 let hsToken = null
-let liveData = null
 
-async function hsGet(path, token) {
-  const res = await fetch(`/api/hubspot?path=${encodeURIComponent(path)}`, {
-    headers: { 'x-hs-token': token, 'Content-Type': 'application/json' }
-  })
-  if (!res.ok) throw new Error(`HubSpot API ${res.status}: ${await res.text()}`)
-  return res.json()
-}
-
-async function hsSearch(objectType, filters, props, token) {
+// ── API ──────────────────────────────────────
+async function hsSearch(objectType, filters, token, limit = 100) {
   const res = await fetch(`/api/hubspot?path=${encodeURIComponent(`/crm/v3/objects/${objectType}/search`)}`, {
     method: 'POST',
     headers: { 'x-hs-token': token, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       filterGroups: [{ filters }],
-      properties: props,
-      limit: 50,
+      properties: PROPS,
+      limit,
       sorts: [{ propertyName: 'hs_lastmodifieddate', direction: 'DESCENDING' }]
     })
   })
-  if (!res.ok) throw new Error(`HubSpot API ${res.status}: ${await res.text()}`)
+  if (!res.ok) throw new Error(`HubSpot ${res.status}: ${await res.text()}`)
   return res.json()
 }
 
+async function hsAccountInfo(token) {
+  const res = await fetch(`/api/hubspot?path=${encodeURIComponent('/account-info/v3/details')}`, {
+    headers: { 'x-hs-token': token }
+  })
+  if (!res.ok) throw new Error(`HubSpot ${res.status}`)
+  return res.json()
+}
+
+// ── CONNECT ──────────────────────────────────
 async function connectHubSpot() {
   const token = document.getElementById('hs-token').value.trim()
   if (!token) return
@@ -503,73 +203,95 @@ async function connectHubSpot() {
   document.getElementById('dashboard-content').style.display = 'none'
 
   try {
-    // Fetch companies with active lifecycle stages
-    const [companiesRes, dealsRes] = await Promise.all([
-      hsSearch('companies',
-        [{ propertyName: 'lifecyclestage', operator: 'IN',
-           values: ['lead','marketingqualifiedlead','salesqualifiedlead','opportunity','subscriber','customer'] }],
-        COMPANY_PROPS, token),
-      hsSearch('deals',
-        [{ propertyName: 'hs_is_closed', operator: 'EQ', value: 'false' }],
-        DEAL_PROPS, token)
+    const yesterday = String(Date.now() - 86400000)
+
+    const [accountInfo, q1, q2, q3, q4] = await Promise.all([
+      hsAccountInfo(token),
+
+      // Q1 — Missing Owner
+      hsSearch('companies', [
+        { propertyName: 'hubspot_owner_id', operator: 'NOT_HAS_PROPERTY' },
+        { propertyName: 'lifecyclestage', operator: 'IN', values: ['lead','marketingqualifiedlead','salesqualifiedlead','opportunity'] }
+      ], token),
+
+      // Q2 — Stale MQA (in MQA stage, not modified in 7+ days)
+      hsSearch('companies', [
+        { propertyName: 'lifecyclestage', operator: 'EQ', value: 'marketingqualifiedlead' },
+        { propertyName: 'hs_lastmodifieddate', operator: 'LT', value: String(Date.now() - 7 * 86400000) }
+      ], token),
+
+      // Q3 — Stuck in Wrong Stage (lead + 2+ intent signals)
+      hsSearch('companies', [
+        { propertyName: 'lifecyclestage', operator: 'EQ', value: 'lead' },
+        { propertyName: 'hs_count_intent_signals_created_last_30_days', operator: 'GTE', value: '2' }
+      ], token),
+
+      // Q4 — SLA Breach (owner assigned 24h+ ago, still in lead)
+      hsSearch('companies', [
+        { propertyName: 'hubspot_owner_id', operator: 'HAS_PROPERTY' },
+        { propertyName: 'hubspot_owner_assigneddate', operator: 'LT', value: yesterday },
+        { propertyName: 'lifecyclestage', operator: 'EQ', value: 'lead' }
+      ], token)
     ])
 
-    liveData = { companies: companiesRes.results, deals: dealsRes.results }
     hsToken = token
-
-    setStatus('live', `Live — ${liveData.companies.length} companies, ${liveData.deals.length} deals`)
-    document.getElementById('data-banner').className = 'data-banner live-mode'
-    document.getElementById('data-banner').innerHTML = `
-      <strong>Live Mode</strong> &mdash;
-      Standard HubSpot fields are real. Fields marked <span class="sample-badge">sample</span>
-      require custom properties in HubSpot (<code>institution_type</code>, <code>estimated_loan_portfolio_m</code>,
-      <code>routing_status</code>, <code>signal_*</code>). Live records shown below the sample tiers.
-    `
+    setStatus('live', `Live — Portal ${accountInfo.portalId}`)
+    document.getElementById('dash-account').textContent = `Portal ${accountInfo.portalId} · ${accountInfo.timeZone}`
     document.getElementById('connect-btn').textContent = 'Disconnect'
     document.getElementById('connect-btn').className = 'disconnect'
-    document.getElementById('connect-btn').onclick = disconnectHubSpot
+    document.getElementById('connect-btn').onclick = disconnect
 
-    renderDashboard(liveData)
+    renderSummary(q1.total, q2.total, q3.total, q4.total)
+    renderDashboard(q1.results, q2.results, q3.results, q4.results, accountInfo.portalId)
+
   } catch (err) {
     setStatus('error', `Error: ${err.message}`)
-    console.error('Full error:', err)
-    renderDashboard(null)
+    console.error(err)
+    document.getElementById('dashboard-content').innerHTML = `<div class="idle-state"><h2>Connection failed</h2><p>${err.message}</p></div>`
   } finally {
     document.getElementById('loading').style.display = 'none'
     document.getElementById('dashboard-content').style.display = 'block'
   }
 }
 
-function disconnectHubSpot() {
-  hsToken = null; liveData = null
+function disconnect() {
+  hsToken = null
   document.getElementById('hs-token').value = ''
   document.getElementById('connect-btn').textContent = 'Connect'
   document.getElementById('connect-btn').className = ''
   document.getElementById('connect-btn').onclick = connectHubSpot
-  setStatus('sample', 'Sample Data Mode')
-  document.getElementById('data-banner').className = 'data-banner sample-mode'
-  document.getElementById('data-banner').innerHTML = `<strong>Sample Data Mode</strong> &mdash; Standard HubSpot fields (lifecycle stage, owner, deal stage) will update with real values when connected. Fields marked <span class="sample-badge">sample</span> require custom properties to be created in HubSpot.`
-  renderDashboard(null)
+  setStatus('idle', 'Not connected')
+  document.getElementById('dash-account').textContent = ''
+  document.getElementById('summary-strip').innerHTML = '<span class="summary-idle">Connect a HubSpot account to see live counts</span>'
+  document.getElementById('dashboard-content').innerHTML = '<div class="idle-state"><h2>Connect your HubSpot account</h2><p>Paste a Private App Token above and click Connect to surface pipeline issues in real time.</p></div>'
 }
 
 function setStatus(type, text) {
   const el = document.getElementById('status-pill')
-  const map = { sample: 'status-pill sample', live: 'status-pill live', loading: 'status-pill loading', error: 'status-pill error' }
-  el.className = map[type]
+  el.className = `status-pill ${type}`
   el.innerHTML = `<span class="status-dot"></span> ${text}`
 }
 
-// ─────────────────────────────────────────────
-// RENDER
-// ─────────────────────────────────────────────
+// ── RENDER ───────────────────────────────────
+function renderSummary(t1, t2, t3, t4) {
+  document.getElementById('summary-strip').innerHTML = `
+    <div class="stat-pill red"><div class="num">${t1}</div><div class="label">Missing owner</div></div>
+    <div class="divider-v"></div>
+    <div class="stat-pill orange"><div class="num">${t2}</div><div class="label">Stale MQAs</div></div>
+    <div class="divider-v"></div>
+    <div class="stat-pill yellow"><div class="num">${t3}</div><div class="label">Stuck in wrong stage</div></div>
+    <div class="divider-v"></div>
+    <div class="stat-pill green"><div class="num">${t4}</div><div class="label">SLA breaches</div></div>
+  `
+}
+
 function stageBadge(stage) {
   const map = {
     lead: ['stage-lead','Lead'],
     marketingqualifiedlead: ['stage-mqa','MQA'],
     salesqualifiedlead: ['stage-sao','SAO'],
     opportunity: ['stage-opportunity','Opportunity'],
-    customer: ['stage-sao','Customer'],
-    subscriber: ['stage-prospect','Subscriber']
+    customer: ['stage-customer','Customer']
   }
   const [cls, label] = map[stage] || ['stage-unknown', stage || 'Unknown']
   return `<span class="stage-badge ${cls}">${label}</span>`
@@ -577,245 +299,134 @@ function stageBadge(stage) {
 
 function ownerAvatar(name) {
   if (!name) return `<div class="owner-avatar av-none">?</div>`
-  const colors = ['av-a','av-b','av-c','av-d']
-  const idx = name.charCodeAt(0) % 4
-  return `<div class="owner-avatar ${colors[idx]}">${name.split(' ').map(w=>w[0]).join('').slice(0,2)}</div>`
+  const colors = ['#5c7cfa','#f783ac','#20c997','#ff922b','#cc5de8']
+  const bg = colors[name.charCodeAt(0) % colors.length]
+  const initials = name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase()
+  return `<div class="owner-avatar" style="background:${bg}">${initials}</div>`
 }
 
-function routingBadge(status) {
-  const map = {
-    'Correctly Routed': 'routing-ok',
-    'Missing Owner': 'routing-missing',
-    'Routing Gap': 'routing-gap',
-    'Stale — No Follow-up': 'routing-stale'
-  }
-  const cls = map[status] || 'routing-gap'
-  return `<div class="routing-status ${cls}"><span class="routing-dot"></span>${status} <span class="sample-badge">sample</span></div>`
+function daysAgo(timestamp) {
+  if (!timestamp) return null
+  return Math.floor((Date.now() - Number(timestamp)) / 86400000)
 }
 
-function signalChips(signals) {
-  const defs = [
-    ['email','Email Reply'],
-    ['badge_cref','Badge (MBA CREF)'],
-    ['badge_aba','Badge (ABA Risk)'],
-    ['webinar','Webinar Reg'],
-    ['demo','Demo Booked'],
-    ['form','Form Fill']
-  ]
-  return defs.map(([k,label]) =>
-    `<span class="signal-chip ${signals[k] ? 'signal-hit' : 'signal-miss'}">${label}</span>`
-  ).join('') + ` <span class="sample-badge">sample</span>`
+function daysColor(d) {
+  if (d === null) return ''
+  return d > 30 ? 'red' : d > 14 ? 'orange' : d > 7 ? '' : 'green'
 }
 
-function renderAccountCard(acct) {
-  const daysColor = acct.days_since_signal > 20 ? 'red' : acct.days_since_signal > 10 ? 'orange' : 'green'
-  const eventTags = (acct.event_contacts||[]).map(c => `<span class="event-tag">${c}</span>`).join('')
+function hsRecordUrl(portalId, id) {
+  return `https://app.hubspot.com/contacts/${portalId}/record/0-2/${id}`
+}
+
+function renderCard(company, urgency, issueCls, issueLabel, actionText, portalId) {
+  const p = company.properties
+  const daysMod = daysAgo(p.hs_lastmodifieddate)
+  const daysOwned = daysAgo(p.hubspot_owner_assigneddate)
+  const signals = p.hs_count_intent_signals_created_last_30_days
 
   return `
-    <div class="card ${acct.urgency}">
+    <div class="card ${urgency}">
       <div class="card-header">
         <div>
-          <div class="company-name">${acct.name}</div>
-          <div class="portfolio">
-            $${Number(acct.loan_portfolio_m).toLocaleString()}M portfolio
-            <span class="sample-badge">sample</span>
-            &nbsp;·&nbsp; ${acct.institution_type} <span class="sample-badge">sample</span>
-            &nbsp;·&nbsp; ${acct.state || '—'}${acct._live ? ' <span class="live-badge">live</span>' : ''}
+          <div class="company-name">
+            ${portalId
+              ? `<a href="${hsRecordUrl(portalId, company.id)}" target="_blank">${p.name || 'Unnamed'}</a>`
+              : (p.name || 'Unnamed')}
+          </div>
+          <div class="company-meta">
+            ${[p.industry, p.state, p.annualrevenue ? `$${Number(p.annualrevenue).toLocaleString()} rev` : null].filter(Boolean).join(' · ') || 'No firmographic data'}
           </div>
         </div>
-        ${stageBadge(acct.lifecyclestage)}${acct._live ? ' <span class="live-badge" style="margin-left:4px;align-self:flex-start">live</span>' : ''}
+        ${stageBadge(p.lifecyclestage)}
       </div>
+
       <div class="owner-row">
         <div class="owner-info">
-          ${ownerAvatar(acct.ownername)}
-          ${acct.ownername
-            ? `<span class="owner-name">${acct.ownername}${acct._live ? ' <span class="live-badge">live</span>' : ''}</span>`
-            : `<span class="owner-unassigned">No Owner Assigned${acct._live ? ' <span class="live-badge">live</span>' : ''}</span>`}
+          ${ownerAvatar(p.ownername)}
+          ${p.ownername
+            ? `<span class="owner-name">${p.ownername}</span>`
+            : `<span class="owner-unassigned">No Owner Assigned</span>`}
         </div>
-        ${routingBadge(acct.routing_status)}
+        <div class="issue-badge ${issueCls}">
+          <span class="issue-dot"></span>${issueLabel}
+        </div>
       </div>
+
       <div class="meta-row">
-        <div class="meta-item">
-          <span class="meta-label">Signals <span class="sample-badge">s</span></span>
-          <span class="meta-value">${acct.signal_count}</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Days Stale <span class="sample-badge">s</span></span>
-          <span class="meta-value ${daysColor}">${acct.days_since_signal} days</span>
-        </div>
-        ${acct.days_in_stage ? `
-        <div class="meta-item">
-          <span class="meta-label">Days in Stage${acct._live ? ' <span class="live-badge">l</span>' : ''}</span>
-          <span class="meta-value">${acct.days_in_stage}</span>
-        </div>` : ''}
-        ${acct.close_target ? `
-        <div class="meta-item">
-          <span class="meta-label">Close Target</span>
-          <span class="meta-value">${acct.close_target}</span>
-        </div>` : ''}
+        ${daysMod !== null ? `
+          <div class="meta-item">
+            <span class="meta-label">Last Activity</span>
+            <span class="meta-value ${daysColor(daysMod)}">${daysMod}d ago</span>
+          </div>` : ''}
+        ${daysOwned !== null ? `
+          <div class="meta-item">
+            <span class="meta-label">Owner Assigned</span>
+            <span class="meta-value ${daysColor(daysOwned)}">${daysOwned}d ago</span>
+          </div>` : ''}
+        ${signals ? `
+          <div class="meta-item">
+            <span class="meta-label">Signals (30d)</span>
+            <span class="meta-value green">${signals}</span>
+          </div>` : ''}
+        ${p.num_conversion_events ? `
+          <div class="meta-item">
+            <span class="meta-label">Conversions</span>
+            <span class="meta-value">${p.num_conversion_events}</span>
+          </div>` : ''}
       </div>
-      <div class="signals-row">${signalChips(acct.signals)}</div>
-      ${eventTags ? `<div class="event-tags">${eventTags}</div>` : ''}
+
       <div class="action-box">
         <div class="action-label">Action Required</div>
-        <div class="action-text">${acct.action}</div>
+        <div class="action-text">${actionText}</div>
       </div>
     </div>`
 }
 
-function renderLiveCompanyCards(companies) {
-  if (!companies || companies.length === 0) return ''
-  return companies.map(c => {
-    const p = c.properties
-    const daysSince = p.hs_latest_intent_signal_timestamp
-      ? Math.floor((Date.now() - Number(p.hs_latest_intent_signal_timestamp)) / 86400000)
-      : null
-    return `
-      <div class="card info">
-        <div class="card-header">
-          <div>
-            <div class="company-name">${p.name || 'Unnamed'} <span class="live-badge">live</span></div>
-            <div class="portfolio">
-              ${p.state || '—'} &nbsp;·&nbsp; ${p.industry || '—'} (live)
-            </div>
-          </div>
-          ${stageBadge(p.lifecyclestage)}
-        </div>
-        <div class="owner-row">
-          <div class="owner-info">
-            ${ownerAvatar(p.ownername)}
-            ${p.ownername
-              ? `<span class="owner-name">${p.ownername} <span class="live-badge">live</span></span>`
-              : `<span class="owner-unassigned">No Owner <span class="live-badge">live</span></span>`}
-          </div>
-          <div class="routing-status ${p.ownername ? 'routing-ok' : 'routing-missing'}">
-            <span class="routing-dot"></span>
-            ${p.ownername ? 'Owner Assigned' : 'No Owner'} <span class="live-badge">live</span>
-          </div>
-        </div>
-        <div class="meta-row">
-          ${p.annualrevenue ? `<div class="meta-item"><span class="meta-label">Annual Revenue <span class="live-badge">l</span></span><span class="meta-value">$${Number(p.annualrevenue).toLocaleString()}</span></div>` : ''}
-          ${daysSince !== null ? `<div class="meta-item"><span class="meta-label">Days Since Signal <span class="live-badge">l</span></span><span class="meta-value ${daysSince > 14 ? 'red' : daysSince > 7 ? 'orange' : 'green'}">${daysSince}d</span></div>` : ''}
-          ${p.hs_count_intent_signals_created_last_30_days ? `<div class="meta-item"><span class="meta-label">Intent Signals (30d) <span class="live-badge">l</span></span><span class="meta-value">${p.hs_count_intent_signals_created_last_30_days}</span></div>` : ''}
-        </div>
-        <div class="hs-record-note">
-          <strong>Live HubSpot record.</strong> Custom fields (loan portfolio, routing status, signal breakdown, institution type) require
-          custom properties to be created — see dashboard spec. Owner assignment and lifecycle stage are real.
-        </div>
-      </div>`
-  }).join('')
-}
-
-function renderTier5Table(contacts) {
+function renderSection(tierId, tierClass, title, count, cards) {
   return `
-    <table class="net-new-table">
-      <thead>
-        <tr>
-          <th>Contact</th><th>Company</th><th>Title</th><th>Persona</th>
-          <th>Email <span class="sample-badge">sample</span></th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${contacts.map(c => `
-          <tr>
-            <td><strong>${c.name}</strong></td>
-            <td>${c.company}</td>
-            <td>${c.title}</td>
-            <td><span class="persona-badge ${c.persona === 'Economic Buyer' ? 'persona-eb' : 'persona-ch'}">${c.persona}</span></td>
-            <td style="color:${c.email_ok ? '#2f9e44' : '#e03131'}">${c.email}</td>
-            <td>${c.action}</td>
-          </tr>`).join('')}
-      </tbody>
-    </table>`
+    <div class="section-header">
+      <span class="tier-badge ${tierId}">${tierId.replace('tier-','Tier ')}</span>
+      <h2>${title}</h2>
+      <span class="count">${count} accounts</span>
+    </div>
+    <div class="cards-grid">
+      ${cards.length > 0 ? cards.join('') : '<div class="empty-state"><div class="check">✓</div>No issues found in this category</div>'}
+    </div>`
 }
 
-function renderSummaryStrip(d) {
-  const t1 = d.tier1.length, t2 = d.tier2.length, t3 = d.tier3.length
-  const missingOwner = [...d.tier1,...d.tier2,...d.tier3].filter(a => !a.ownername)
-  const totalPortfolio = missingOwner.reduce((s,a) => s + (a.loan_portfolio_m||0), 0)
-  document.getElementById('summary-strip').innerHTML = `
-    <div class="stat-pill red"><div class="num">${t1}</div><div class="label">Fix today</div></div>
-    <div class="divider-v"></div>
-    <div class="stat-pill orange"><div class="num">${t2}</div><div class="label">MQAs going cold</div></div>
-    <div class="divider-v"></div>
-    <div class="stat-pill yellow"><div class="num">${t3}</div><div class="label">Stuck in wrong stage</div></div>
-    <div class="divider-v"></div>
-    <div class="stat-pill green"><div class="num">${d.tier4.length}</div><div class="label">Active deals to advance</div></div>
-    <div class="divider-v"></div>
-    <div class="stat-pill blue"><div class="num">${d.tier5.length}</div><div class="label">ABA Risk net-new</div></div>
-    <div class="divider-v"></div>
-    <div class="stat-pill red"><div class="num">$${(totalPortfolio/1000).toFixed(1)}B</div><div class="label">Portfolio — no owner <span style="font-size:9px;color:#ff6b6b">(sample)</span></div></div>
+function renderDashboard(q1, q2, q3, q4, portalId) {
+  const t1Cards = q1.map(c => renderCard(c, 'urgent', 'issue-missing', 'Missing Owner',
+    `No owner assigned. Account is in ${c.properties.lifecyclestage || 'unknown'} stage and sitting unworked. Assign an owner immediately and trigger follow-up.`,
+    portalId))
+
+  const t2Cards = q2.map(c => {
+    const d = daysAgo(c.properties.hs_lastmodifieddate)
+    return renderCard(c, 'warning', 'issue-stale', 'Stale MQA',
+      `MQA with no activity for ${d !== null ? d + ' days' : 'an extended period'}. No follow-up sequence triggered. Reach out now before this lead goes cold.`,
+      portalId)
+  })
+
+  const t3Cards = q3.map(c => renderCard(c, 'caution', 'issue-gap', 'Wrong Stage',
+    `Has ${c.properties.hs_count_intent_signals_created_last_30_days || '2+'} intent signals in the last 30 days but still sitting in Lead. Should be promoted to MQA — HubSpot workflow likely didn't fire.`,
+    portalId))
+
+  const t4Cards = q4.map(c => {
+    const d = daysAgo(c.properties.hubspot_owner_assigneddate)
+    return renderCard(c, 'good', 'issue-sla', 'SLA Breach',
+      `Owner assigned ${d !== null ? d + ' days' : 'over 24 hours'} ago but account is still in Lead stage with no progression. 24-hour routing SLA missed.`,
+      portalId)
+  })
+
+  document.getElementById('dashboard-content').innerHTML = `
+    ${renderSection('tier-1', 'urgent', 'Missing Owner — Fix Today', q1.length, t1Cards)}
+    ${renderSection('tier-2', 'warning', 'Stale MQAs — No Follow-up', q2.length, t2Cards)}
+    ${renderSection('tier-3', 'caution', 'Stuck in Wrong Stage', q3.length, t3Cards)}
+    ${renderSection('tier-4', 'good', 'SLA Breach — Owner Assigned, No Action', q4.length, t4Cards)}
   `
 }
 
-function renderDashboard(live) {
-  const d = SAMPLE_DATA
-  renderSummaryStrip(d)
-
-  const liveCompanies = live ? live.companies : []
-  const liveDeals = live ? live.deals : []
-
-  const html = `
-    <!-- TIER 1 -->
-    <div class="section-header">
-      <span class="tier-badge tier-1">Tier 1</span>
-      <h2>Fix Today — Revenue at Risk</h2>
-      <span class="count">${d.tier1.length} accounts &nbsp;·&nbsp; data: <span class="sample-badge">sample</span></span>
-    </div>
-    <div class="cards-grid">${d.tier1.map(renderAccountCard).join('')}</div>
-
-    <!-- TIER 2 -->
-    <div class="section-header">
-      <span class="tier-badge tier-2">Tier 2</span>
-      <h2>Act This Week — MQAs Going Cold</h2>
-      <span class="count">${d.tier2.length} accounts &nbsp;·&nbsp; data: <span class="sample-badge">sample</span></span>
-    </div>
-    <div class="cards-grid">${d.tier2.map(renderAccountCard).join('')}</div>
-
-    <!-- TIER 3 -->
-    <div class="section-header">
-      <span class="tier-badge tier-3">Tier 3</span>
-      <h2>Promote to MQA — Stuck in Wrong Stage</h2>
-      <span class="count">${d.tier3.length} accounts &nbsp;·&nbsp; data: <span class="sample-badge">sample</span></span>
-    </div>
-    <div class="cards-grid">${d.tier3.map(renderAccountCard).join('')}</div>
-
-    <!-- TIER 4 -->
-    <div class="section-header">
-      <span class="tier-badge tier-4">Tier 4</span>
-      <h2>Advance Active Pipeline</h2>
-      <span class="count">${d.tier4.length} accounts &nbsp;·&nbsp; data: <span class="sample-badge">sample</span></span>
-    </div>
-    <div class="cards-grid">${d.tier4.map(renderAccountCard).join('')}</div>
-
-    <!-- LIVE HUBSPOT RECORDS -->
-    ${liveCompanies.length > 0 ? `
-    <div class="section-header">
-      <span class="tier-badge" style="background:#d1fae522;color:#059669;border:1px solid #a7f3d044">Live HubSpot</span>
-      <h2>Your HubSpot Companies — Active Lifecycle Stages</h2>
-      <span class="count">${liveCompanies.length} records &nbsp;·&nbsp; <span class="live-badge">live</span></span>
-    </div>
-    <div class="cards-grid">${renderLiveCompanyCards(liveCompanies)}</div>` : ''}
-
-    <!-- TIER 5 -->
-    <div class="section-header">
-      <span class="tier-badge tier-5">Tier 5</span>
-      <h2>ABA Risk Net-New — Route This Week</h2>
-      <span class="count">${d.tier5.length} contacts &nbsp;·&nbsp; data: <span class="sample-badge">sample</span></span>
-    </div>
-    ${renderTier5Table(d.tier5)}
-  `
-
-  document.getElementById('dashboard-content').innerHTML = html
-  document.getElementById('dashboard-content').style.display = 'block'
-}
-
-// ─────────────────────────────────────────────
-// INIT
-// ─────────────────────────────────────────────
-document.getElementById('dash-date').textContent = 'Week of ' + new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
-renderDashboard(null)
+document.getElementById('dash-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
 </script>
 </body>
 </html>
