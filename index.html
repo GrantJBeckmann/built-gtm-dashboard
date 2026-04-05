@@ -531,8 +531,8 @@ async function connectHubSpot() {
 
     renderDashboard(liveData)
   } catch (err) {
-    setStatus('error', 'Connection failed — check token or host over HTTP')
-    console.error(err)
+    setStatus('error', `Error: ${err.message}`)
+    console.error('Full error:', err)
     renderDashboard(null)
   } finally {
     document.getElementById('loading').style.display = 'none'
