@@ -389,8 +389,8 @@ function renderCard(company, urgency, issueCls, issueLabel, actionText, portalId
 
 function renderSection(tierId, tierClass, title, count, cards) {
   const sectionId = `section-${tierId}`
-  const visible = cards.slice(0, 5)
-  const hidden = cards.slice(5)
+  const visible = cards.slice(0, 3)
+  const hidden = cards.slice(3)
   return `
     <div class="section-header">
       <span class="tier-badge ${tierId}">${tierId.replace('tier-','Tier ')}</span>
