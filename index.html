@@ -112,6 +112,10 @@
   .spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid #e2e8f0; border-top-color: #3b82f6; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  .expand-row { margin-top: 12px; text-align: center; }
+  .expand-btn { background: white; border: 1px solid #e0e4f0; border-radius: 8px; padding: 8px 20px; font-size: 12px; font-weight: 600; color: #5a6987; cursor: pointer; width: 100%; }
+  .expand-btn:hover { background: #f8f9ff; border-color: #c5cfe8; color: #1a1a2e; }
+
   .footer { text-align: center; padding: 24px 40px; color: #aab2c0; font-size: 11px; border-top: 1px solid #e8ecf0; margin-top: 40px; }
 
   @media (max-width: 700px) {
@@ -384,15 +388,28 @@ function renderCard(company, urgency, issueCls, issueLabel, actionText, portalId
 }
 
 function renderSection(tierId, tierClass, title, count, cards) {
+  const sectionId = `section-${tierId}`
+  const visible = cards.slice(0, 5)
+  const hidden = cards.slice(5)
   return `
     <div class="section-header">
       <span class="tier-badge ${tierId}">${tierId.replace('tier-','Tier ')}</span>
       <h2>${title}</h2>
       <span class="count">${count} accounts</span>
     </div>
-    <div class="cards-grid">
-      ${cards.length > 0 ? cards.join('') : '<div class="empty-state"><div class="check">✓</div>No issues found in this category</div>'}
-    </div>`
+    <div class="cards-grid" id="${sectionId}-visible">
+      ${visible.length > 0 ? visible.join('') : '<div class="empty-state"><div class="check">✓</div>No issues found in this category</div>'}
+    </div>
+    ${hidden.length > 0 ? `
+      <div class="expand-row" id="${sectionId}-expand-row">
+        <button class="expand-btn" onclick="toggleSection('${sectionId}')">
+          Show ${hidden.length} more ▾
+        </button>
+      </div>
+      <div class="cards-grid" id="${sectionId}-hidden" style="display:none;margin-top:14px">
+        ${hidden.join('')}
+      </div>` : ''}
+  `
 }
 
 function renderDashboard(q1, q2, q3, q4, portalId) {
@@ -424,6 +441,14 @@ function renderDashboard(q1, q2, q3, q4, portalId) {
     ${renderSection('tier-3', 'caution', 'Stuck in Wrong Stage', q3.length, t3Cards)}
     ${renderSection('tier-4', 'good', 'SLA Breach — Owner Assigned, No Action', q4.length, t4Cards)}
   `
+}
+
+function toggleSection(sectionId) {
+  const hidden = document.getElementById(`${sectionId}-hidden`)
+  const btn = document.querySelector(`#${sectionId}-expand-row .expand-btn`)
+  const isOpen = hidden.style.display !== 'none'
+  hidden.style.display = isOpen ? 'none' : 'grid'
+  btn.textContent = isOpen ? `Show ${hidden.children.length} more ▾` : `Hide ▴`
 }
 
 document.getElementById('dash-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
