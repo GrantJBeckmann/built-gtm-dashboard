@@ -517,7 +517,7 @@ function renderDashboard(q1, q2, q3, q4, portalId) {
   })
 
   document.getElementById('dashboard-content').innerHTML = `
-    ${renderSection('tier-1', 'urgent', 'Missing Owner — Fix Today', q1.length, t1Cards, 'MQA accounts created in the last 30 days with no owner assigned', true)}
+    ${renderSection('tier-1', 'urgent', 'Missing Owner — Fix Today', q1.length, t1Cards, 'MQA accounts created in the last 30 days with no owner assigned')}
     ${renderSection('tier-2', 'warning', 'Stale MQAs — No Follow-up', q2.length, t2Cards)}
     ${renderSection('tier-3', 'caution', 'Stuck in Wrong Stage', q3.length, t3Cards)}
     ${renderSection('tier-4', 'good', 'SLA Breach — Owner Assigned, No Action', q4.length, t4Cards)}
