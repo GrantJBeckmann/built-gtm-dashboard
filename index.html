@@ -471,11 +471,11 @@ function renderSection(tierId, tierClass, title, count, cards, subtitle = null, 
   return `
     <div class="section-header">
       <span class="tier-badge ${tierId}">${tierId.replace('tier-','Tier ')}</span>
+      <div class="stat-pill" style="padding:0">
+        <div class="num ${tierId === 'tier-1' ? 'red' : tierId === 'tier-2' ? 'orange' : tierId === 'tier-3' ? 'yellow' : 'green'}" style="font-size:26px;font-weight:700;line-height:1;color:${tierId === 'tier-1' ? '#ff6b6b' : tierId === 'tier-2' ? '#ffa94d' : tierId === 'tier-3' ? '#ffe066' : '#69db7c'}">${count}</div>
+      </div>
       <div>
-        <div style="display:flex;align-items:baseline;gap:10px">
-          <h2>${title}</h2>
-          <span class="count" style="margin-left:0">${count} accounts</span>
-        </div>
+        <h2>${title}</h2>
         ${subtitle ? `<div style="font-size:11px;color:#8898aa;margin-top:2px">${subtitle}</div>` : ''}
       </div>
     </div>
