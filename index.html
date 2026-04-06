@@ -174,8 +174,8 @@ const PROPS = [
   'hs_analytics_source','hs_analytics_source_data_1','hs_analytics_source_data_2',
   'lead_source','first_conversion_event_name','recent_conversion_event_name',
   'first_contact_conversion_source',
-  // MQA context
-  'hs_reason_to_reach_out','hs_date_entered_marketingqualifiedlead',
+  // MQA/SQL context
+  'hs_reason_to_reach_out','hs_date_entered_marketingqualifiedlead','hs_date_entered_salesqualifiedlead',
 ]
 
 let hsToken = null
@@ -239,9 +239,10 @@ async function connectHubSpot() {
         { propertyName: 'createdate', operator: 'GT', value: String(Date.now() - 30 * 86400000) }
       ], token),
 
-      // Q2 — Stale MQA (in MQA stage, not modified in 7+ days)
+      // Q2 — Stale SQL (entered SQL <30 days ago, not touched in 7+ days)
       hsSearch('companies', [
-        { propertyName: 'lifecyclestage', operator: 'EQ', value: 'marketingqualifiedlead' },
+        { propertyName: 'lifecyclestage', operator: 'EQ', value: 'salesqualifiedlead' },
+        { propertyName: 'hs_date_entered_salesqualifiedlead', operator: 'GT', value: String(Date.now() - 30 * 86400000) },
         { propertyName: 'hs_lastmodifieddate', operator: 'LT', value: String(Date.now() - 7 * 86400000) }
       ], token),
 
@@ -303,7 +304,7 @@ function renderSummary(t1, t2, t3, t4) {
   document.getElementById('summary-strip').innerHTML = `
     <div class="stat-pill red"><div class="num">${t1}</div><div class="label">Missing owner</div></div>
     <div class="divider-v"></div>
-    <div class="stat-pill orange"><div class="num">${t2}</div><div class="label">Stale MQAs</div></div>
+    <div class="stat-pill orange"><div class="num">${t2}</div><div class="label">Stale SQLs</div></div>
     <div class="divider-v"></div>
     <div class="stat-pill yellow"><div class="num">${t3}</div><div class="label">Stuck in wrong stage</div></div>
     <div class="divider-v"></div>
@@ -438,13 +439,17 @@ function renderCard(company, urgency, issueCls, issueLabel, actionText, portalId
           </div>` : ''}
       </div>` : ''}
 
-      ${(p.hs_reason_to_reach_out || p.hs_date_entered_marketingqualifiedlead) ? `
+      ${(p.hs_reason_to_reach_out || p.hs_date_entered_marketingqualifiedlead || p.hs_date_entered_salesqualifiedlead) ? `
       <div class="meta-row">
-        ${p.hs_date_entered_marketingqualifiedlead ? `
+        ${p.hs_date_entered_salesqualifiedlead ? `
+          <div class="meta-item">
+            <span class="meta-label">Entered SQL</span>
+            <span class="meta-value">${new Date(p.hs_date_entered_salesqualifiedlead).toLocaleDateString()}</span>
+          </div>` : (p.hs_date_entered_marketingqualifiedlead ? `
           <div class="meta-item">
             <span class="meta-label">Entered MQA</span>
             <span class="meta-value">${new Date(p.hs_date_entered_marketingqualifiedlead).toLocaleDateString()}</span>
-          </div>` : ''}
+          </div>` : '')}
         ${p.hs_reason_to_reach_out ? `
           <div class="meta-item" style="flex:1;min-width:100%">
             <span class="meta-label">Reach Out Reason</span>
@@ -494,7 +499,7 @@ function renderDashboard(q1, q2, q3, q4, portalId) {
 
   const t2Cards = q2.map(c => {
     const d = daysAgo(c.properties.hs_lastmodifieddate)
-    return renderCard(c, 'warning', 'issue-stale', 'Stale MQA',
+    return renderCard(c, 'warning', 'issue-stale', 'Stale SQL',
       `No activity for ${d !== null ? d + ' days' : 'an extended period'}. Reach out now.`,
       portalId)
   })
@@ -512,7 +517,7 @@ function renderDashboard(q1, q2, q3, q4, portalId) {
 
   document.getElementById('dashboard-content').innerHTML = `
     ${renderSection('tier-1', 'urgent', 'Missing Owner — Fix Today', q1.length, t1Cards, 'MQA accounts created in the last 30 days with no owner assigned')}
-    ${renderSection('tier-2', 'warning', 'Stale MQAs — No Follow-up', q2.length, t2Cards)}
+    ${renderSection('tier-2', 'warning', 'Stale SQLs — No Follow-up', q2.length, t2Cards)}
     ${renderSection('tier-3', 'caution', 'Stuck in Wrong Stage', q3.length, t3Cards)}
     ${renderSection('tier-4', 'good', 'SLA Breach — Owner Assigned, No Action', q4.length, t4Cards)}
   `
