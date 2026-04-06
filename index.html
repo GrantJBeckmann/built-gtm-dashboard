@@ -443,7 +443,7 @@ function renderCard(company, urgency, issueCls, issueLabel, actionText, portalId
         ${p.hs_date_entered_marketingqualifiedlead ? `
           <div class="meta-item">
             <span class="meta-label">Entered MQA</span>
-            <span class="meta-value">${new Date(Number(p.hs_date_entered_marketingqualifiedlead)).toLocaleDateString()}</span>
+            <span class="meta-value">${new Date(p.hs_date_entered_marketingqualifiedlead).toLocaleDateString()}</span>
           </div>` : ''}
         ${p.hs_reason_to_reach_out ? `
           <div class="meta-item" style="flex:1;min-width:100%">
