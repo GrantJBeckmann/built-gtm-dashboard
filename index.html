@@ -268,10 +268,10 @@ async function connectHubSpot() {
         { propertyName: 'company_fit_score', operator: 'GTE', value: '95' }
       ], token),
 
-      // Q4 — SLA Watch (owner assigned in last 24h, still in lead)
+      // Q4 — SLA Watch (owner assigned in last 7 days, still in lead)
       hsSearch('companies', [
         { propertyName: 'hubspot_owner_id', operator: 'HAS_PROPERTY' },
-        { propertyName: 'hubspot_owner_assigneddate', operator: 'GT', value: yesterday },
+        { propertyName: 'hubspot_owner_assigneddate', operator: 'GT', value: String(Date.now() - 7 * 86400000) },
         { propertyName: 'lifecyclestage', operator: 'EQ', value: 'lead' }
       ], token),
 
@@ -529,7 +529,7 @@ function renderDashboard(q1, q2, q3, q4, portalId, t1, t2, t3, t4, owners) {
 
   const t4Cards = q4.map(c => {
     return renderCard(c, 'good', 'issue-sla', 'SLA Watch',
-      `Owner assigned in the last 24h — no action taken yet.`,
+      `Owner assigned in the last 7 days — no action taken yet.`,
       portalId, owners)
   })
 
@@ -537,7 +537,7 @@ function renderDashboard(q1, q2, q3, q4, portalId, t1, t2, t3, t4, owners) {
     ${renderSection('tier-1', 'urgent', 'Stale SAOs — No Follow-up', t2, t2Cards, 'SAO accounts entered in the last 30 days with no activity in 7+ days')}
     ${renderSection('tier-2', 'warning', 'Missing Owner — Fix Today', t1, t1Cards, 'MQL accounts that entered MQL stage in the last 30 days with no owner assigned')}
     ${renderSection('tier-3', 'caution', 'High Fit MQAs — Not Yet SAO', t3, t3Cards, 'MQA accounts with a company fit score ≥ 95 that haven\'t been promoted to SAO')}
-    ${renderSection('tier-4', 'good', 'SLA Watch — Newly Assigned, No Action Yet', t4, t4Cards, 'Leads assigned an owner in the last 24 hours still sitting in Lead stage')}
+    ${renderSection('tier-4', 'good', 'SLA Watch — Newly Assigned, No Action Yet', t4, t4Cards, 'Leads assigned an owner in the last 7 days still sitting in Lead stage')}
   `
 }
 
