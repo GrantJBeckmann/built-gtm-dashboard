@@ -269,7 +269,7 @@ async function connectHubSpot() {
     document.getElementById('connect-btn').onclick = disconnect
 
     renderSummary(q1.total, q2.total, q3.total, q4.total)
-    renderDashboard(q1.results, q2.results, q3.results, q4.results, accountInfo.portalId)
+    renderDashboard(q1.results, q2.results, q3.results, q4.results, accountInfo.portalId, q1.total, q2.total, q3.total, q4.total)
 
   } catch (err) {
     setStatus('error', `Error: ${err.message}`)
@@ -494,7 +494,7 @@ function renderSection(tierId, tierClass, title, count, cards, subtitle = null, 
   `
 }
 
-function renderDashboard(q1, q2, q3, q4, portalId) {
+function renderDashboard(q1, q2, q3, q4, portalId, t1, t2, t3, t4) {
   const t1Cards = q1.map(c => renderCard(c, 'urgent', 'issue-missing', 'Missing Owner',
     `Assign an owner and trigger follow-up.`,
     portalId))
@@ -518,10 +518,10 @@ function renderDashboard(q1, q2, q3, q4, portalId) {
   })
 
   document.getElementById('dashboard-content').innerHTML = `
-    ${renderSection('tier-1', 'urgent', 'Missing Owner — Fix Today', q1.total, t1Cards, 'MQL accounts that entered MQL stage in the last 30 days with no owner assigned')}
-    ${renderSection('tier-2', 'warning', 'Stale SQLs — No Follow-up', q2.total, t2Cards, 'SQL accounts entered in the last 30 days with no activity in 7+ days')}
-    ${renderSection('tier-3', 'caution', 'Stuck in Wrong Stage', q3.total, t3Cards)}
-    ${renderSection('tier-4', 'good', 'SLA Breach — Owner Assigned, No Action', q4.total, t4Cards)}
+    ${renderSection('tier-1', 'urgent', 'Missing Owner — Fix Today', t1, t1Cards, 'MQL accounts that entered MQL stage in the last 30 days with no owner assigned')}
+    ${renderSection('tier-2', 'warning', 'Stale SQLs — No Follow-up', t2, t2Cards, 'SQL accounts entered in the last 30 days with no activity in 7+ days')}
+    ${renderSection('tier-3', 'caution', 'Stuck in Wrong Stage', t3, t3Cards)}
+    ${renderSection('tier-4', 'good', 'SLA Breach — Owner Assigned, No Action', t4, t4Cards)}
   `
 }
 
