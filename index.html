@@ -176,6 +176,8 @@ const PROPS = [
   'first_contact_conversion_source',
   // MQA/SQL context
   'hs_reason_to_reach_out','hs_date_entered_marketingqualifiedlead','hs_date_entered_salesqualifiedlead',
+  // Fit
+  'company_fit_score',
 ]
 
 let hsToken = null
@@ -246,10 +248,10 @@ async function connectHubSpot() {
         { propertyName: 'hs_lastmodifieddate', operator: 'LT', value: String(Date.now() - 7 * 86400000) }
       ], token),
 
-      // Q3 — Stuck in Wrong Stage (lead + 2+ intent signals)
+      // Q3 — High-fit leads not promoted to MQA (company_fit_score >= 75)
       hsSearch('companies', [
         { propertyName: 'lifecyclestage', operator: 'EQ', value: 'lead' },
-        { propertyName: 'hs_count_intent_signals_created_last_30_days', operator: 'GTE', value: '2' }
+        { propertyName: 'company_fit_score', operator: 'GTE', value: '75' }
       ], token),
 
       // Q4 — SLA Breach (owner assigned 24h+ ago, still in lead)
@@ -306,7 +308,7 @@ function renderSummary(t1, t2, t3, t4) {
     <div class="divider-v"></div>
     <div class="stat-pill orange"><div class="num">${t2}</div><div class="label">Stale SAOs</div></div>
     <div class="divider-v"></div>
-    <div class="stat-pill yellow"><div class="num">${t3}</div><div class="label">Stuck in wrong stage</div></div>
+    <div class="stat-pill yellow"><div class="num">${t3}</div><div class="label">High fit, not MQA</div></div>
     <div class="divider-v"></div>
     <div class="stat-pill green"><div class="num">${t4}</div><div class="label">SLA breaches</div></div>
   `
@@ -506,8 +508,8 @@ function renderDashboard(q1, q2, q3, q4, portalId, t1, t2, t3, t4) {
       portalId)
   })
 
-  const t3Cards = q3.map(c => renderCard(c, 'caution', 'issue-gap', 'Wrong Stage',
-    `${c.properties.hs_count_intent_signals_created_last_30_days || '2+'} intent signals in 30 days — promote to MQA.`,
+  const t3Cards = q3.map(c => renderCard(c, 'caution', 'issue-gap', 'High Fit — Not MQA',
+    `Fit score ${c.properties.company_fit_score} — still in Lead. Review and promote to MQA.`,
     portalId))
 
   const t4Cards = q4.map(c => {
@@ -520,7 +522,7 @@ function renderDashboard(q1, q2, q3, q4, portalId, t1, t2, t3, t4) {
   document.getElementById('dashboard-content').innerHTML = `
     ${renderSection('tier-1', 'urgent', 'Missing Owner — Fix Today', t1, t1Cards, 'MQL accounts that entered MQL stage in the last 30 days with no owner assigned')}
     ${renderSection('tier-2', 'warning', 'Stale SAOs — No Follow-up', t2, t2Cards, 'SAO accounts entered in the last 30 days with no activity in 7+ days')}
-    ${renderSection('tier-3', 'caution', 'Stuck in Wrong Stage', t3, t3Cards)}
+    ${renderSection('tier-3', 'caution', 'High Fit Leads — Not Yet MQA', t3, t3Cards, 'Leads with a company fit score ≥ 75 that haven\'t been promoted to MQA')}
     ${renderSection('tier-4', 'good', 'SLA Breach — Owner Assigned, No Action', t4, t4Cards)}
   `
 }
