@@ -176,8 +176,6 @@ const PROPS = [
   'first_contact_conversion_source',
   // MQA context
   'hs_reason_to_reach_out','hs_date_entered_marketingqualifiedlead',
-  // Clay
-  'clay_score'
 ]
 
 let hsToken = null
@@ -433,13 +431,8 @@ function renderCard(company, urgency, issueCls, issueLabel, actionText, portalId
           </div>` : ''}
       </div>` : ''}
 
-      ${(p.hs_reason_to_reach_out || p.hs_date_entered_marketingqualifiedlead || p.clay_score) ? `
+      ${(p.hs_reason_to_reach_out || p.hs_date_entered_marketingqualifiedlead) ? `
       <div class="meta-row">
-        ${p.clay_score ? `
-          <div class="meta-item">
-            <span class="meta-label">Clay Score</span>
-            <span class="meta-value ${Number(p.clay_score) >= 15 ? 'green' : Number(p.clay_score) >= 10 ? 'orange' : 'red'}">${p.clay_score} / 20</span>
-          </div>` : ''}
         ${p.hs_date_entered_marketingqualifiedlead ? `
           <div class="meta-item">
             <span class="meta-label">Entered MQA</span>
