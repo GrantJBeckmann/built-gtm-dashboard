@@ -537,7 +537,7 @@ function renderDashboard(q1, q2, q3, q4, portalId, t1, t2, t3, t4, owners) {
   document.getElementById('dashboard-content').innerHTML = `
     ${renderSection('tier-1', 'urgent', 'Missing Owner — Fix Today', t1, t1Cards, 'MQL accounts that entered MQL stage in the last 30 days with no owner assigned')}
     ${renderSection('tier-2', 'warning', 'Stale SAOs — No Follow-up', t2, t2Cards, 'SAO accounts entered in the last 30 days with no activity in 7+ days')}
-    ${renderSection('tier-3', 'caution', 'High Fit MQAs — Not Yet SAO', t3, t3Cards, 'MQA accounts with a company fit score ≥ 75 that haven\'t been promoted to SAO')}
+    ${renderSection('tier-3', 'caution', 'High Fit MQAs — Not Yet SAO', t3, t3Cards, 'MQA accounts with a company fit score ≥ 95 that haven\'t been promoted to SAO')}
     ${renderSection('tier-4', 'good', 'SLA Breach — Owner Assigned, No Action', t4, t4Cards)}
   `
 }
