@@ -211,6 +211,19 @@ async function hsSearchAll(objectType, filters, token) {
   return { results, total }
 }
 
+async function hsGetOwners(token) {
+  const res = await fetch(`/api/hubspot?path=${encodeURIComponent('/crm/v3/owners?limit=100')}`, {
+    headers: { 'x-hs-token': token }
+  })
+  if (!res.ok) return {}
+  const data = await res.json()
+  const map = {}
+  for (const o of data.results || []) {
+    map[o.id] = [o.firstName, o.lastName].filter(Boolean).join(' ') || o.email
+  }
+  return map
+}
+
 async function hsAccountInfo(token) {
   const res = await fetch(`/api/hubspot?path=${encodeURIComponent('/account-info/v3/details')}`, {
     headers: { 'x-hs-token': token }
@@ -231,8 +244,9 @@ async function connectHubSpot() {
   try {
     const yesterday = String(Date.now() - 86400000)
 
-    const [accountInfo, q1, q2, q3, q4] = await Promise.all([
+    const [accountInfo, owners, q1, q2, q3, q4] = await Promise.all([
       hsAccountInfo(token),
+      hsGetOwners(token),
 
       // Q1 — Missing Owner (MQA only, entered MQA in last 30 days)
       hsSearch('companies', [
@@ -271,7 +285,7 @@ async function connectHubSpot() {
     document.getElementById('connect-btn').onclick = disconnect
 
     renderSummary(q1.total, q2.total, q3.total, q4.total)
-    renderDashboard(q1.results, q2.results, q3.results, q4.results, accountInfo.portalId, q1.total, q2.total, q3.total, q4.total)
+    renderDashboard(q1.results, q2.results, q3.results, q4.results, accountInfo.portalId, q1.total, q2.total, q3.total, q4.total, owners)
 
   } catch (err) {
     setStatus('error', `Error: ${err.message}`)
@@ -350,8 +364,9 @@ function hsRecordUrl(portalId, id) {
   return `https://app.hubspot.com/contacts/${portalId}/record/0-2/${id}`
 }
 
-function renderCard(company, urgency, issueCls, issueLabel, actionText, portalId) {
+function renderCard(company, urgency, issueCls, issueLabel, actionText, portalId, owners = {}) {
   const p = company.properties
+  const ownerName = p.ownername || (p.hubspot_owner_id && owners[p.hubspot_owner_id]) || null
   const daysMod = daysAgo(p.hs_lastmodifieddate)
   const daysOwned = daysAgo(p.hubspot_owner_assigneddate)
   const signals = p.hs_count_intent_signals_created_last_30_days
@@ -374,9 +389,9 @@ function renderCard(company, urgency, issueCls, issueLabel, actionText, portalId
 
       <div class="owner-row">
         <div class="owner-info">
-          ${ownerAvatar(p.ownername)}
-          ${p.ownername
-            ? `<span class="owner-name">${p.ownername}</span>`
+          ${ownerAvatar(ownerName)}
+          ${ownerName
+            ? `<span class="owner-name">${ownerName}</span>`
             : `<span class="owner-unassigned">No Owner Assigned</span>`}
         </div>
         <div class="issue-badge ${issueCls}">
@@ -496,27 +511,27 @@ function renderSection(tierId, tierClass, title, count, cards, subtitle = null, 
   `
 }
 
-function renderDashboard(q1, q2, q3, q4, portalId, t1, t2, t3, t4) {
+function renderDashboard(q1, q2, q3, q4, portalId, t1, t2, t3, t4, owners) {
   const t1Cards = q1.map(c => renderCard(c, 'urgent', 'issue-missing', 'Missing Owner',
     `Assign an owner and trigger follow-up.`,
-    portalId))
+    portalId, owners))
 
   const t2Cards = q2.map(c => {
     const d = daysAgo(c.properties.hs_lastmodifieddate)
     return renderCard(c, 'warning', 'issue-stale', 'Stale SQL',
       `No activity for ${d !== null ? d + ' days' : 'an extended period'}. Reach out now.`,
-      portalId)
+      portalId, owners)
   })
 
   const t3Cards = q3.map(c => renderCard(c, 'caution', 'issue-gap', 'High Fit — Not MQA',
     `Fit score ${c.properties.company_fit_score} — still in Lead. Review and promote to MQA.`,
-    portalId))
+    portalId, owners))
 
   const t4Cards = q4.map(c => {
     const d = daysAgo(c.properties.hubspot_owner_assigneddate)
     return renderCard(c, 'good', 'issue-sla', 'SLA Breach',
       `Owner assigned ${d !== null ? d + 'd' : '24h+'} ago, no stage progression.`,
-      portalId)
+      portalId, owners)
   })
 
   document.getElementById('dashboard-content').innerHTML = `
