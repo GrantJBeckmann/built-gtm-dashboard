@@ -486,24 +486,24 @@ function renderSection(tierId, tierClass, title, count, cards) {
 
 function renderDashboard(q1, q2, q3, q4, portalId) {
   const t1Cards = q1.map(c => renderCard(c, 'urgent', 'issue-missing', 'Missing Owner',
-    `No owner assigned. Account is in ${c.properties.lifecyclestage || 'unknown'} stage and sitting unworked. Assign an owner immediately and trigger follow-up.`,
+    `Assign an owner and trigger follow-up.`,
     portalId))
 
   const t2Cards = q2.map(c => {
     const d = daysAgo(c.properties.hs_lastmodifieddate)
     return renderCard(c, 'warning', 'issue-stale', 'Stale MQA',
-      `MQA with no activity for ${d !== null ? d + ' days' : 'an extended period'}. No follow-up sequence triggered. Reach out now before this lead goes cold.`,
+      `No activity for ${d !== null ? d + ' days' : 'an extended period'}. Reach out now.`,
       portalId)
   })
 
   const t3Cards = q3.map(c => renderCard(c, 'caution', 'issue-gap', 'Wrong Stage',
-    `Has ${c.properties.hs_count_intent_signals_created_last_30_days || '2+'} intent signals in the last 30 days but still sitting in Lead. Should be promoted to MQA — HubSpot workflow likely didn't fire.`,
+    `${c.properties.hs_count_intent_signals_created_last_30_days || '2+'} intent signals in 30 days — promote to MQA.`,
     portalId))
 
   const t4Cards = q4.map(c => {
     const d = daysAgo(c.properties.hubspot_owner_assigneddate)
     return renderCard(c, 'good', 'issue-sla', 'SLA Breach',
-      `Owner assigned ${d !== null ? d + ' days' : 'over 24 hours'} ago but account is still in Lead stage with no progression. 24-hour routing SLA missed.`,
+      `Owner assigned ${d !== null ? d + 'd' : '24h+'} ago, no stage progression.`,
       portalId)
   })
 
