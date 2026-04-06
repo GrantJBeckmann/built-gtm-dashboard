@@ -181,19 +181,32 @@ const PROPS = [
 let hsToken = null
 
 // ── API ──────────────────────────────────────
-async function hsSearch(objectType, filters, token, limit = 100) {
+async function hsSearch(objectType, filters, token, limit = 100, after = undefined) {
+  const body = {
+    filterGroups: [{ filters }],
+    properties: PROPS,
+    limit,
+    sorts: [{ propertyName: 'hs_lastmodifieddate', direction: 'DESCENDING' }]
+  }
+  if (after) body.after = after
   const res = await fetch(`/api/hubspot?path=${encodeURIComponent(`/crm/v3/objects/${objectType}/search`)}`, {
     method: 'POST',
     headers: { 'x-hs-token': token, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      filterGroups: [{ filters }],
-      properties: PROPS,
-      limit,
-      sorts: [{ propertyName: 'hs_lastmodifieddate', direction: 'DESCENDING' }]
-    })
+    body: JSON.stringify(body)
   })
   if (!res.ok) throw new Error(`HubSpot ${res.status}: ${await res.text()}`)
   return res.json()
+}
+
+async function hsSearchAll(objectType, filters, token) {
+  let results = [], after = undefined, total = 0
+  do {
+    const page = await hsSearch(objectType, filters, token, 100, after)
+    total = page.total
+    results = results.concat(page.results)
+    after = page.paging?.next?.after
+  } while (after)
+  return { results, total }
 }
 
 async function hsAccountInfo(token) {
@@ -219,8 +232,8 @@ async function connectHubSpot() {
     const [accountInfo, q1, q2, q3, q4, q5] = await Promise.all([
       hsAccountInfo(token),
 
-      // Q1 — Missing Owner (MQA only, created in last 30 days)
-      hsSearch('companies', [
+      // Q1 — Missing Owner (MQA only, created in last 30 days) — fetch all pages
+      hsSearchAll('companies', [
         { propertyName: 'hubspot_owner_id', operator: 'NOT_HAS_PROPERTY' },
         { propertyName: 'lifecyclestage', operator: 'EQ', value: 'marketingqualifiedlead' },
         { propertyName: 'createdate', operator: 'GT', value: String(Date.now() - 30 * 86400000) }
@@ -452,14 +465,17 @@ function renderCard(company, urgency, issueCls, issueLabel, actionText, portalId
     </div>`
 }
 
-function renderSection(tierId, tierClass, title, count, cards) {
+function renderSection(tierId, tierClass, title, count, cards, subtitle = null, showAll = false) {
   const sectionId = `section-${tierId}`
-  const visible = cards.slice(0, 3)
-  const hidden = cards.slice(3)
+  const visible = showAll ? cards : cards.slice(0, 3)
+  const hidden = showAll ? [] : cards.slice(3)
   return `
     <div class="section-header">
       <span class="tier-badge ${tierId}">${tierId.replace('tier-','Tier ')}</span>
-      <h2>${title}</h2>
+      <div>
+        <h2>${title}</h2>
+        ${subtitle ? `<div style="font-size:11px;color:#8898aa;margin-top:2px">${subtitle}</div>` : ''}
+      </div>
       <span class="count">${count} accounts</span>
     </div>
     <div class="cards-grid" id="${sectionId}-visible">
@@ -501,7 +517,7 @@ function renderDashboard(q1, q2, q3, q4, portalId) {
   })
 
   document.getElementById('dashboard-content').innerHTML = `
-    ${renderSection('tier-1', 'urgent', 'Missing Owner — Fix Today', q1.length, t1Cards)}
+    ${renderSection('tier-1', 'urgent', 'Missing Owner — Fix Today', q1.length, t1Cards, 'MQA accounts created in the last 30 days with no owner assigned', true)}
     ${renderSection('tier-2', 'warning', 'Stale MQAs — No Follow-up', q2.length, t2Cards)}
     ${renderSection('tier-3', 'caution', 'Stuck in Wrong Stage', q3.length, t3Cards)}
     ${renderSection('tier-4', 'good', 'SLA Breach — Owner Assigned, No Action', q4.length, t4Cards)}
