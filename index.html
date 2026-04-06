@@ -169,6 +169,7 @@ const PROPS = [
   'annualrevenue','hs_lead_status','hs_latest_intent_signal_timestamp',
   'hs_count_intent_signals_created_last_30_days','hubspot_owner_assigneddate',
   'createdate','hs_lastmodifieddate','num_conversion_events','domain',
+  'numberofemployees',
   // Lead source
   'hs_analytics_source','hs_analytics_source_data_1','hs_analytics_source_data_2',
   'lead_source','first_conversion_event_name','recent_conversion_event_name',
@@ -220,10 +221,11 @@ async function connectHubSpot() {
     const [accountInfo, q1, q2, q3, q4] = await Promise.all([
       hsAccountInfo(token),
 
-      // Q1 — Missing Owner
+      // Q1 — Missing Owner (MQA only, created in last 30 days)
       hsSearch('companies', [
         { propertyName: 'hubspot_owner_id', operator: 'NOT_HAS_PROPERTY' },
-        { propertyName: 'lifecyclestage', operator: 'IN', values: ['lead','marketingqualifiedlead','salesqualifiedlead','opportunity'] }
+        { propertyName: 'lifecyclestage', operator: 'EQ', value: 'marketingqualifiedlead' },
+        { propertyName: 'createdate', operator: 'GT', value: String(Date.now() - 30 * 86400000) }
       ], token),
 
       // Q2 — Stale MQA (in MQA stage, not modified in 7+ days)
@@ -375,6 +377,16 @@ function renderCard(company, urgency, issueCls, issueLabel, actionText, portalId
           <div class="meta-item">
             <span class="meta-label">Owner Assigned</span>
             <span class="meta-value ${daysColor(daysOwned)}">${daysOwned}d ago</span>
+          </div>` : ''}
+        ${p.createdate ? `
+          <div class="meta-item">
+            <span class="meta-label">Created</span>
+            <span class="meta-value">${new Date(p.createdate).toLocaleDateString()}</span>
+          </div>` : ''}
+        ${p.numberofemployees ? `
+          <div class="meta-item">
+            <span class="meta-label">Employees</span>
+            <span class="meta-value">${Number(p.numberofemployees).toLocaleString()}</span>
           </div>` : ''}
         ${signals ? `
           <div class="meta-item">
