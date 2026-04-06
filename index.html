@@ -168,7 +168,7 @@ const PROPS = [
   'name','lifecyclestage','ownername','hubspot_owner_id','state','industry',
   'annualrevenue','hs_lead_status','hs_latest_intent_signal_timestamp',
   'hs_count_intent_signals_created_last_30_days','hubspot_owner_assigneddate',
-  'createdate','hs_lastmodifieddate','num_conversion_events','domain',
+  'createdate','hs_lastmodifieddate','num_associated_deals','domain',
   'numberofemployees',
   // Lead source
   'hs_analytics_source','hs_analytics_source_data_1','hs_analytics_source_data_2',
@@ -397,10 +397,10 @@ function renderCard(company, urgency, issueCls, issueLabel, actionText, portalId
             <span class="meta-label">Signals (30d)</span>
             <span class="meta-value green">${signals}</span>
           </div>` : ''}
-        ${p.num_conversion_events ? `
+        ${p.num_associated_deals ? `
           <div class="meta-item">
-            <span class="meta-label">Conversions</span>
-            <span class="meta-value">${p.num_conversion_events}</span>
+            <span class="meta-label">Linked Deals</span>
+            <span class="meta-value">${p.num_associated_deals}</span>
           </div>` : ''}
       </div>
 
