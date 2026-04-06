@@ -472,10 +472,12 @@ function renderSection(tierId, tierClass, title, count, cards, subtitle = null, 
     <div class="section-header">
       <span class="tier-badge ${tierId}">${tierId.replace('tier-','Tier ')}</span>
       <div>
-        <h2>${title}</h2>
+        <div style="display:flex;align-items:baseline;gap:10px">
+          <h2>${title}</h2>
+          <span class="count" style="margin-left:0">${count} accounts</span>
+        </div>
         ${subtitle ? `<div style="font-size:11px;color:#8898aa;margin-top:2px">${subtitle}</div>` : ''}
       </div>
-      <span class="count">${count} accounts</span>
     </div>
     <div class="cards-grid" id="${sectionId}-visible">
       ${visible.length > 0 ? visible.join('') : '<div class="empty-state"><div class="check">✓</div>No issues found in this category</div>'}
