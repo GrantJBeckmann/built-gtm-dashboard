@@ -262,10 +262,10 @@ async function connectHubSpot() {
         { propertyName: 'hs_lastmodifieddate', operator: 'LT', value: String(Date.now() - 7 * 86400000) }
       ], token),
 
-      // Q3 — High-fit MQAs not yet promoted to SAO (company_fit_score >= 75)
+      // Q3 — High-fit MQAs not yet promoted to SAO (company_fit_score >= 95)
       hsSearch('companies', [
         { propertyName: 'lifecyclestage', operator: 'EQ', value: 'marketingqualifiedlead' },
-        { propertyName: 'company_fit_score', operator: 'GTE', value: '75' }
+        { propertyName: 'company_fit_score', operator: 'GTE', value: '95' }
       ], token),
 
       // Q4 — SLA Breach (owner assigned 24h+ ago, still in lead)
