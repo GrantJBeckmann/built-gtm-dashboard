@@ -232,8 +232,8 @@ async function connectHubSpot() {
     const [accountInfo, q1, q2, q3, q4] = await Promise.all([
       hsAccountInfo(token),
 
-      // Q1 — Missing Owner (MQA only, entered MQA in last 30 days) — fetch all pages
-      hsSearchAll('companies', [
+      // Q1 — Missing Owner (MQA only, entered MQA in last 30 days)
+      hsSearch('companies', [
         { propertyName: 'hubspot_owner_id', operator: 'NOT_HAS_PROPERTY' },
         { propertyName: 'lifecyclestage', operator: 'EQ', value: 'marketingqualifiedlead' },
         { propertyName: 'hs_date_entered_marketingqualifiedlead', operator: 'GT', value: String(Date.now() - 30 * 86400000) }
