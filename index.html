@@ -349,7 +349,7 @@ function renderCard(company, urgency, issueCls, issueLabel, actionText, portalId
               : (p.name || 'Unnamed')}
           </div>
           <div class="company-meta">
-            ${[p.industry, p.state, p.annualrevenue ? `$${Number(p.annualrevenue).toLocaleString()} rev` : null].filter(Boolean).join(' · ') || 'No firmographic data'}
+            ${[p.industry, p.state, p.numberofemployees ? `${Number(p.numberofemployees).toLocaleString()} employees` : null, p.annualrevenue ? `$${Number(p.annualrevenue).toLocaleString()} rev` : null].filter(Boolean).join(' · ') || 'No firmographic data'}
           </div>
         </div>
         ${stageBadge(p.lifecyclestage)}
@@ -382,11 +382,6 @@ function renderCard(company, urgency, issueCls, issueLabel, actionText, portalId
           <div class="meta-item">
             <span class="meta-label">Created</span>
             <span class="meta-value">${new Date(p.createdate).toLocaleDateString()}</span>
-          </div>` : ''}
-        ${p.numberofemployees ? `
-          <div class="meta-item">
-            <span class="meta-label">Employees</span>
-            <span class="meta-value">${Number(p.numberofemployees).toLocaleString()}</span>
           </div>` : ''}
         ${signals ? `
           <div class="meta-item">
