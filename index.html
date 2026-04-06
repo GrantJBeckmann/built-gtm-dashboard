@@ -268,10 +268,10 @@ async function connectHubSpot() {
         { propertyName: 'company_fit_score', operator: 'GTE', value: '95' }
       ], token),
 
-      // Q4 — SLA Breach (owner assigned 24h+ ago, still in lead)
+      // Q4 — SLA Watch (owner assigned in last 24h, still in lead)
       hsSearch('companies', [
         { propertyName: 'hubspot_owner_id', operator: 'HAS_PROPERTY' },
-        { propertyName: 'hubspot_owner_assigneddate', operator: 'LT', value: yesterday },
+        { propertyName: 'hubspot_owner_assigneddate', operator: 'GT', value: yesterday },
         { propertyName: 'lifecyclestage', operator: 'EQ', value: 'lead' }
       ], token),
 
@@ -324,7 +324,7 @@ function renderSummary(t1, t2, t3, t4) {
     <div class="divider-v"></div>
     <div class="stat-pill yellow"><div class="num">${t3}</div><div class="label">High fit, not SAO</div></div>
     <div class="divider-v"></div>
-    <div class="stat-pill green"><div class="num">${t4}</div><div class="label">SLA breaches</div></div>
+    <div class="stat-pill green"><div class="num">${t4}</div><div class="label">SLA watch</div></div>
   `
 }
 
@@ -528,9 +528,8 @@ function renderDashboard(q1, q2, q3, q4, portalId, t1, t2, t3, t4, owners) {
     portalId, owners))
 
   const t4Cards = q4.map(c => {
-    const d = daysAgo(c.properties.hubspot_owner_assigneddate)
-    return renderCard(c, 'good', 'issue-sla', 'SLA Breach',
-      `Owner assigned ${d !== null ? d + 'd' : '24h+'} ago, no stage progression.`,
+    return renderCard(c, 'good', 'issue-sla', 'SLA Watch',
+      `Owner assigned in the last 24h — no action taken yet.`,
       portalId, owners)
   })
 
@@ -538,7 +537,7 @@ function renderDashboard(q1, q2, q3, q4, portalId, t1, t2, t3, t4, owners) {
     ${renderSection('tier-1', 'urgent', 'Stale SAOs — No Follow-up', t2, t2Cards, 'SAO accounts entered in the last 30 days with no activity in 7+ days')}
     ${renderSection('tier-2', 'warning', 'Missing Owner — Fix Today', t1, t1Cards, 'MQL accounts that entered MQL stage in the last 30 days with no owner assigned')}
     ${renderSection('tier-3', 'caution', 'High Fit MQAs — Not Yet SAO', t3, t3Cards, 'MQA accounts with a company fit score ≥ 95 that haven\'t been promoted to SAO')}
-    ${renderSection('tier-4', 'good', 'SLA Breach — Owner Assigned, No Action', t4, t4Cards)}
+    ${renderSection('tier-4', 'good', 'SLA Watch — Newly Assigned, No Action Yet', t4, t4Cards, 'Leads assigned an owner in the last 24 hours still sitting in Lead stage')}
   `
 }
 
