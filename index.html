@@ -304,7 +304,7 @@ function renderSummary(t1, t2, t3, t4) {
   document.getElementById('summary-strip').innerHTML = `
     <div class="stat-pill red"><div class="num">${t1}</div><div class="label">Missing owner</div></div>
     <div class="divider-v"></div>
-    <div class="stat-pill orange"><div class="num">${t2}</div><div class="label">Stale SQLs</div></div>
+    <div class="stat-pill orange"><div class="num">${t2}</div><div class="label">Stale SAOs</div></div>
     <div class="divider-v"></div>
     <div class="stat-pill yellow"><div class="num">${t3}</div><div class="label">Stuck in wrong stage</div></div>
     <div class="divider-v"></div>
@@ -519,7 +519,7 @@ function renderDashboard(q1, q2, q3, q4, portalId, t1, t2, t3, t4) {
 
   document.getElementById('dashboard-content').innerHTML = `
     ${renderSection('tier-1', 'urgent', 'Missing Owner — Fix Today', t1, t1Cards, 'MQL accounts that entered MQL stage in the last 30 days with no owner assigned')}
-    ${renderSection('tier-2', 'warning', 'Stale SQLs — No Follow-up', t2, t2Cards, 'SQL accounts entered in the last 30 days with no activity in 7+ days')}
+    ${renderSection('tier-2', 'warning', 'Stale SAOs — No Follow-up', t2, t2Cards, 'SAO accounts entered in the last 30 days with no activity in 7+ days')}
     ${renderSection('tier-3', 'caution', 'Stuck in Wrong Stage', t3, t3Cards)}
     ${renderSection('tier-4', 'good', 'SLA Breach — Owner Assigned, No Action', t4, t4Cards)}
   `
