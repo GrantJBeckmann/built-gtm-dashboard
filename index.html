@@ -176,7 +176,7 @@ const PROPS = [
   // MQA context
   'hs_reason_to_reach_out','hs_date_entered_marketingqualifiedlead',
   // Clay
-  'clay_score','clay_score_explanation'
+  'clay_score'
 ]
 
 let hsToken = null
@@ -434,12 +434,6 @@ function renderCard(company, urgency, issueCls, issueLabel, actionText, portalId
             <span class="meta-label">Reach Out Reason</span>
             <span class="meta-value" style="white-space:normal;font-weight:400;color:#495057">${p.hs_reason_to_reach_out}</span>
           </div>` : ''}
-      </div>` : ''}
-
-      ${p.clay_score_explanation ? `
-      <div class="action-box" style="margin-bottom:10px;background:#f0f4ff;border-color:#c5d0f0">
-        <div class="action-label" style="color:#4a6abf">Clay Score Reasoning</div>
-        <div class="action-text" style="color:#2d3748">${p.clay_score_explanation}</div>
       </div>` : ''}
 
       <div class="action-box">
