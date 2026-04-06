@@ -218,7 +218,7 @@ async function connectHubSpot() {
   try {
     const yesterday = String(Date.now() - 86400000)
 
-    const [accountInfo, q1, q2, q3, q4] = await Promise.all([
+    const [accountInfo, q1, q2, q3, q4, q5] = await Promise.all([
       hsAccountInfo(token),
 
       // Q1 — Missing Owner (MQA only, created in last 30 days)
@@ -245,7 +245,12 @@ async function connectHubSpot() {
         { propertyName: 'hubspot_owner_id', operator: 'HAS_PROPERTY' },
         { propertyName: 'hubspot_owner_assigneddate', operator: 'LT', value: yesterday },
         { propertyName: 'lifecyclestage', operator: 'EQ', value: 'lead' }
-      ], token)
+      ], token),
+
+      // Q5 — Opportunities count
+      hsSearch('companies', [
+        { propertyName: 'lifecyclestage', operator: 'EQ', value: 'opportunity' }
+      ], token, 1)
     ])
 
     hsToken = token
@@ -255,7 +260,7 @@ async function connectHubSpot() {
     document.getElementById('connect-btn').className = 'disconnect'
     document.getElementById('connect-btn').onclick = disconnect
 
-    renderSummary(q1.total, q2.total, q3.total, q4.total)
+    renderSummary(q1.total, q2.total, q3.total, q4.total, q5.total)
     renderDashboard(q1.results, q2.results, q3.results, q4.results, accountInfo.portalId)
 
   } catch (err) {
@@ -287,7 +292,7 @@ function setStatus(type, text) {
 }
 
 // ── RENDER ───────────────────────────────────
-function renderSummary(t1, t2, t3, t4) {
+function renderSummary(t1, t2, t3, t4, t5) {
   document.getElementById('summary-strip').innerHTML = `
     <div class="stat-pill red"><div class="num">${t1}</div><div class="label">Missing owner</div></div>
     <div class="divider-v"></div>
@@ -296,6 +301,8 @@ function renderSummary(t1, t2, t3, t4) {
     <div class="stat-pill yellow"><div class="num">${t3}</div><div class="label">Stuck in wrong stage</div></div>
     <div class="divider-v"></div>
     <div class="stat-pill green"><div class="num">${t4}</div><div class="label">SLA breaches</div></div>
+    <div class="divider-v"></div>
+    <div class="stat-pill green"><div class="num">${t5}</div><div class="label">Opportunities</div></div>
   `
 }
 
@@ -321,7 +328,9 @@ function ownerAvatar(name) {
 
 function daysAgo(timestamp) {
   if (!timestamp) return null
-  return Math.floor((Date.now() - Number(timestamp)) / 86400000)
+  const ms = new Date(timestamp).getTime()
+  if (isNaN(ms)) return null
+  return Math.floor((Date.now() - ms) / 86400000)
 }
 
 function daysColor(d) {
@@ -412,7 +421,7 @@ function renderCard(company, urgency, issueCls, issueLabel, actionText, portalId
             <span class="meta-label">First Touch</span>
             <span class="meta-value">${p.first_contact_conversion_source}</span>
           </div>` : ''}
-        ${p.first_conversion_event_name ? `
+        ${p.first_conversion_event_name && p.first_conversion_event_name !== p.recent_conversion_event_name ? `
           <div class="meta-item">
             <span class="meta-label">First Conversion</span>
             <span class="meta-value">${p.first_conversion_event_name}</span>
