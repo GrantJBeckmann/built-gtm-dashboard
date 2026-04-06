@@ -232,11 +232,11 @@ async function connectHubSpot() {
     const [accountInfo, q1, q2, q3, q4] = await Promise.all([
       hsAccountInfo(token),
 
-      // Q1 — Missing Owner (MQA only, created in last 30 days) — fetch all pages
+      // Q1 — Missing Owner (MQA only, entered MQA in last 30 days) — fetch all pages
       hsSearchAll('companies', [
         { propertyName: 'hubspot_owner_id', operator: 'NOT_HAS_PROPERTY' },
         { propertyName: 'lifecyclestage', operator: 'EQ', value: 'marketingqualifiedlead' },
-        { propertyName: 'createdate', operator: 'GT', value: String(Date.now() - 30 * 86400000) }
+        { propertyName: 'hs_date_entered_marketingqualifiedlead', operator: 'GT', value: String(Date.now() - 30 * 86400000) }
       ], token),
 
       // Q2 — Stale SQL (entered SQL <30 days ago, not touched in 7+ days)
@@ -516,7 +516,7 @@ function renderDashboard(q1, q2, q3, q4, portalId) {
   })
 
   document.getElementById('dashboard-content').innerHTML = `
-    ${renderSection('tier-1', 'urgent', 'Missing Owner — Fix Today', q1.length, t1Cards, 'MQA accounts created in the last 30 days with no owner assigned')}
+    ${renderSection('tier-1', 'urgent', 'Missing Owner — Fix Today', q1.length, t1Cards, 'MQA accounts that entered MQL in the last 30 days with no owner assigned')}
     ${renderSection('tier-2', 'warning', 'Stale SQLs — No Follow-up', q2.length, t2Cards, 'SQL accounts entered in the last 30 days with no activity in 7+ days')}
     ${renderSection('tier-3', 'caution', 'Stuck in Wrong Stage', q3.length, t3Cards)}
     ${renderSection('tier-4', 'good', 'SLA Breach — Owner Assigned, No Action', q4.length, t4Cards)}
